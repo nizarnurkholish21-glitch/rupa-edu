@@ -16,6 +16,7 @@ export async function Header({ query = '', showSearch = true }: { query?: string
         </Link>
         <div className="header-search">{showSearch ? <SearchForm defaultValue={query} /> : null}</div>
         <nav className="header-nav" aria-label="Navigasi utama">
+          <Link href="/perpustakaan" className="hide-sm">Perpustakaan</Link>
           <Link href="/cakupan" className="hide-sm">Cakupan</Link>
           {user ? <Link href="/ruang">Ruang saya</Link> : <Link href="/masuk">Masuk</Link>}
           <ThemeToggle />

@@ -47,3 +47,7 @@ export function primaryRole(user: CurrentUser): AppRole | null {
   for (const r of PRIORITY) if (user.memberships.some((m) => m.role === r)) return r;
   return null;
 }
+
+export function isStaff(user: CurrentUser | null): boolean {
+  return Boolean(user?.memberships.some((m) => m.role === 'super_admin' || m.role === 'moderator'));
+}

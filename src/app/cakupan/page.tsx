@@ -5,8 +5,8 @@ import { Footer } from '@/components/Footer';
 export const metadata: Metadata = { title: 'Cakupan & sumber' };
 
 const PHASES = [
-  ['Fase 1 · Fondasi', 'Akun, peran, isolasi data sekolah, pencarian awal, tampilan dasar.', 'Sedang berjalan'],
-  ['Fase 2 · LMS dan perpustakaan', 'Kelas, modul pekanan, tugas, nilai; unggah buku PDF berizin, OCR, bab dan halaman.', 'Direncanakan'],
+  ['Fase 1 · Fondasi', 'Akun, peran, isolasi data sekolah, pencarian awal, tampilan dasar.', 'Selesai'],
+  ['Fase 2 · LMS dan perpustakaan', 'Perpustakaan buku (unggah, nomor halaman, bab, tinjauan, akses per sekolah, pencarian isi) sudah dibangun. Berikutnya: kelas, modul pekanan, tugas, nilai.', 'Sedang berjalan'],
   ['Fase 3 · AI belajar', 'Tutor AI dan jawaban bersitasi dari buku, generator kuis, Lesson Studio.', 'Direncanakan'],
   ['Fase 4 · Praktik dan karya', 'Art Lab, game edukasi, portofolio, galeri dengan izin.', 'Direncanakan'],
   ['Fase 5 · Operasi sekolah', 'Absensi QR, pengingat, analitik nilai, portal wali.', 'Direncanakan'],
@@ -29,6 +29,7 @@ export default function CakupanPage() {
           <h2 className="t-heading-2">Yang bisa dicari hari ini</h2>
           <ul style={{ paddingLeft: 20 }}>
             <li>12 artikel <strong>demo</strong> tentang seni rupa dan desain, ditulis tim RUPA EDU sebagai contoh dan belum ditinjau ahli.</li>
+            <li>Buku pelajaran di Perpustakaan: keterangannya publik, tetapi isinya hanya untuk siswa dan guru di sekolah yang diberi akses.</li>
             <li>Belum ada sumber eksternal: perpustakaan digital, jurnal, museum, dan hasil web umum belum dihubungkan.</li>
           </ul>
           <h2 className="t-heading-2">Prinsip sumber</h2>

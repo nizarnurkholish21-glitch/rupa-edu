@@ -10,7 +10,8 @@ Repositori ini dibangun bertahap. Setiap fase baru dimulai setelah gerbang uji f
 | --- | --- | --- |
 | 0 · Discovery | Analisis, arsitektur, risiko, roadmap | Selesai |
 | 1 · Fondasi | Design system, akun & peran, isolasi data sekolah (RLS), pencarian publik awal, halaman dasar | **Selesai dan teruji** (lihat [status fitur](docs/status-fitur.md)) |
-| 2 · LMS & Library | Kelas, modul pekanan, tugas, nilai; unggah PDF, OCR, bab/halaman | Berikutnya |
+| 2a · Perpustakaan | Unggah buku (.pdf/.txt), nomor halaman cetak, bab, tinjauan admin, akses per sekolah, pembaca & pencarian isi | **Selesai, teruji di database**; antarmuka login belum diuji ke Supabase sungguhan |
+| 2b · LMS | Kelas, modul pekanan, tugas, nilai | Berikutnya |
 | 3–8 | AI belajar, praktik & karya, operasi sekolah, Explore & Atlas, marketplace, produksi | Direncanakan |
 
 ## Untuk pemilik proyek (tanpa latar belakang programming)
@@ -19,7 +20,7 @@ Anda tidak perlu menjalankan apa pun di komputer sendiri. Ikuti **[Panduan setup
 
 1. Menampilkan situs secara online di Vercel (gratis). Tanpa database pun situs sudah bisa dibuka dan pencarian demo sudah berjalan.
 2. Menghubungkan Supabase (gratis) agar login dan peran pengguna aktif.
-3. Membuat akun demo untuk mencoba tampilan siswa, guru, wali, dan admin.
+3. Menjadikan akun Anda super admin, lalu mengunggah buku di **Kelola buku** (lihat [panduan perpustakaan](docs/perpustakaan.md)).
 
 > **Batas paket gratis:** Vercel Hobby hanya untuk pemakaian pribadi/non-komersial; proyek Supabase gratis dijeda bila tidak aktif seminggu dan tidak memiliki backup. Cukup untuk pengembangan dan demo. **Jangan memasukkan data siswa sungguhan** sebelum paket, perjanjian dengan sekolah, dan persetujuan wali ditinjau.
 

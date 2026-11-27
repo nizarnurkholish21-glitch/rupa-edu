@@ -1,4 +1,4 @@
-# Status fitur — akhir Tahap 1 (27 Nov 2026)
+# Status fitur (diperbarui 27 Nov 2026, Fase 2a)
 
 Label: **Teruji** = dibangun dan lulus tes otomatis/manual yang dicatat · **Belum diverifikasi** = dibangun, belum diuji terhadap layanan sungguhan · **Menunggu kredensial** · **Direncanakan** · **Tidak dikerjakan**.
 
@@ -35,8 +35,33 @@ Label: **Teruji** = dibangun dan lulus tes otomatis/manual yang dicatat · **Bel
 | Content-Security-Policy ketat | Direncanakan | Fase 8 |
 | Admin UI untuk membuat sekolah, kelas, dan akun | Direncanakan | Fase 2 |
 
+## Fase 2a · Perpustakaan — gerbang LULUS
+
+Gerbang Master Prompt Fase 2 (perpustakaan): *satu buku nyata diproses dan dicari*. `tests/db/real-book.test.ts` dengan buku siswa *Dasar-Dasar Seni Rupa X Semester 2*: **5/5 lulus** (metadata, 3 bab pada hlm 1/53/109, pencarian "arsiran hatching" → hlm 17–18, siswa sekolah lain tidak mendapat hasil). Tes ini butuh berkas buku dan hanya dijalankan lokal (`REAL_BOOK=…`), bukan di CI.
+
+| Fitur | Status | Bukti |
+| --- | --- | --- |
+| Skema perpustakaan (buku, akses sekolah, halaman, bab, potongan) + RLS | Teruji | `tests/db/library.test.ts` 17/17 |
+| Buku privat: isi hanya untuk siswa/guru/admin sekolah ber-akses, buku berstatus siap | Teruji | `library.test.ts` |
+| Metadata & daftar bab publik; buku tertutup/draf tidak terlihat publik | Teruji | `library.test.ts` |
+| Status "siap" wajib ditinjau manusia (constraint database) | Teruji | `library.test.ts` |
+| Pemroses buku: halaman, nomor halaman cetak (arab/romawi), metadata, bab, potongan | Teruji | `tests/unit/ingest.test.ts` 16/16 + 14 buku nyata (lihat `docs/perpustakaan.md`) |
+| Pencarian isi buku (full-text Indonesia, cuplikan bertanda, halaman cetak) | Teruji | `library.test.ts` + uji buku nyata |
+| Impor lewat skrip (`npm run import:books`) | Teruji | 14 buku diimpor ke PostgreSQL lokal tanpa galat |
+| Ekstraksi PDF di browser (pdf.js) | Teruji (algoritma) | Dibandingkan dengan pdftotext pada 4 PDF: struktur bab sama di 3, satu bab ganda di 1 (tertangkap saat tinjauan) |
+| Halaman Perpustakaan, detail buku, pembaca per halaman + sitasi, cari di buku | Belum diverifikasi | Build lulus; butuh Supabase + login untuk dicoba |
+| Kelola buku: daftar, tinjau bab/metadata/akses, terbitkan, unggah | Belum diverifikasi | Build lulus; butuh Supabase + akun super admin |
+| Hasil buku di pencarian umum (isi untuk yang berhak, kartu metadata untuk umum) | Belum diverifikasi | Butuh Supabase |
+| OCR PDF pindaian | Direncanakan | Unggahan tanpa teks ditolak dengan pesan jelas |
+| Gambar/halaman asli buku | Direncanakan | Menunggu keputusan penyimpanan & lisensi |
+| Penyedia embedding & pencarian semantik | Direncanakan | Fase 3 |
+
+**Catatan keamanan pengujian:** saya mencoba menjalankan layanan Supabase (auth + API) secara lokal untuk menguji antarmuka login, tetapi menjalankan program unduhan ditolak oleh pengaman lingkungan kerja. Antarmuka berlogin akan diuji begitu proyek Supabase Anda tersambung.
+
 ## Risiko tersisa
 
 - Paket gratis: tanpa backup dan non-komersial. Jangan memasukkan data siswa sungguhan.
 - Login belum diuji terhadap Supabase sungguhan; uji manual begitu proyek Supabase dibuat.
 - Belum ada penanggung jawab teknis untuk pembaruan keamanan dependensi.
+- Buku Kementerian berhak cipta: kebijakan "privat untuk sekolah ber-akses" perlu ditinjau konsultan hukum sebelum peluncuran publik.
+- Dua buku (SD IV, SMA XII) butuh koreksi struktur bab manual sebelum siap.

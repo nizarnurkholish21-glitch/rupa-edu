@@ -10,7 +10,7 @@ export function Footer() {
           <Link href="/status">Status layanan</Link>
         </nav>
         <p>RUPA EDU — Belajar. Menemukan. Berkarya. Berbagi.</p>
-        <p>Versi pengembangan (Tahap 1). Konten berlabel <strong>Demo</strong> adalah contoh dan belum ditinjau ahli.</p>
+        <p>Versi pengembangan. Konten berlabel <strong>Demo</strong> adalah contoh dan belum ditinjau ahli.</p>
       </div>
     </footer>
   );

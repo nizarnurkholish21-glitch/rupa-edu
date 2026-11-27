@@ -33,9 +33,12 @@ Hasil: login aktif, peran (siswa/guru/wali/admin) bekerja, aturan privasi ditega
 ### B2. Buat tabel dan aturan akses
 
 1. Di Supabase, buka **SQL Editor** → **New query**.
-2. Di GitHub, buka file `supabase/migrations/20261127000001_foundation.sql`, klik tombol **Copy raw file**.
-3. Tempel ke SQL Editor, klik **Run**. Harus muncul "Success. No rows returned".
-4. Ulangi untuk file `supabase/seed.sql` (12 artikel demo).
+2. Di GitHub, buka folder `supabase/migrations/`. Jalankan **setiap file secara berurutan** (nama file diawali tanggal):
+   - `20261127000001_foundation.sql` (akun, peran, sekolah, kelas)
+   - `20261127000002_library.sql` (perpustakaan buku)
+
+   Untuk tiap file: klik **Copy raw file**, tempel ke SQL Editor, klik **Run**. Harus muncul "Success. No rows returned".
+3. Ulangi untuk file `supabase/seed.sql` (12 artikel demo).
 
 ### B3. Matikan pendaftaran publik (penting)
 
@@ -58,7 +61,25 @@ Akun siswa dan guru dibuat oleh sekolah, bukan mendaftar sendiri.
 
 > **Jangan** memasukkan *service_role key* ke Vercel. Kunci itu bisa melewati semua aturan privasi dan hanya dipakai untuk skrip akun demo.
 
-## Bagian C — Akun demo (opsional)
+## Bagian C — Jadikan akun Anda super admin
+
+Akun pertama dibuat dari dashboard Supabase, lalu diberi peran super admin agar bisa mengunggah buku dan mengatur sekolah.
+
+1. Supabase → **Authentication → Users → Add user → Create new user**. Isi email Anda dan kata sandi yang kuat; centang *Auto Confirm User*.
+2. Buka **SQL Editor → New query**, tempel perintah berikut, ganti email-nya, lalu **Run**:
+
+   ```sql
+   insert into public.memberships (user_id, role)
+   select id, 'super_admin' from auth.users where email = 'email-anda@contoh.com';
+   ```
+
+3. Masuk di situs Anda (`/masuk`). Menu **Perpustakaan → Kelola buku** sekarang tersedia.
+
+## Bagian D — Memasukkan buku
+
+Ikuti [panduan perpustakaan](perpustakaan.md): unggah tiap buku di **Kelola buku → Unggah buku**, tinjau bab, pilih sekolah, lalu tandai siap. Untuk mencoba sebagai guru/siswa, buat dulu sekolah demo (Bagian E).
+
+## Bagian E — Akun demo (opsional)
 
 Skrip `scripts/seed-demo-users.mjs` membuat satu sekolah demo beserta admin, guru, dua siswa, dan satu wali. Skrip ini perlu dijalankan oleh seseorang yang bisa memakai terminal (Node.js 20+). Jika belum ada, minta bantuan saya di sesi berikutnya atau mitra teknis Anda.
 

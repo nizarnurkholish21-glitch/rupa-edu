@@ -10,3 +10,7 @@ Format: tanggal · keputusan · alasan · konsekuensi.
 6. **27 Nov 2026 · Identitas visual RUPA EDU.** Logo R dari tiga bentuk dasar; palet indigo tarum, kunyit, terakota, hijau daun; Fraunces + Plus Jakarta Sans. Sumber tunggal: `design/tokens.json`.
 7. **27 Nov 2026 · Pencarian Fase 1 memakai full-text PostgreSQL berkonfigurasi `indonesian` + trigram untuk salah ketik.** Alasan: gratis, tanpa layanan tambahan. Konsekuensi: pencarian semantik (makna) menyusul setelah penyedia embedding dipilih.
 8. **27 Nov 2026 · Pendaftaran publik dimatikan.** Akun siswa/guru dibuat sekolah. Pendaftaran pengguna umum dibuka kembali ketika alur persetujuan dan moderasi siap.
+9. **27 Nov 2026 · Buku privat secara bawaan; lisensi buku Kementerian dicatat "hak cipta dilindungi".** Alasan: halaman hak cipta buku menyatakan "Dilindungi Undang-Undang"; tidak ada lisensi terbuka tertulis. Konsekuensi: isi hanya untuk sekolah yang diberi akses; publik melihat metadata.
+10. **27 Nov 2026 · Berkas PDF tidak disimpan; hanya teks per halaman.** Alasan: meminimalkan penyimpanan karya berhak cipta dan biaya penyimpanan di paket gratis. Konsekuensi: gambar dan tata letak asli tidak tampil.
+11. **27 Nov 2026 · Struktur bab otomatis wajib ditinjau manusia.** Database menolak status "siap" tanpa `reviewed_at`.
+12. **27 Nov 2026 · Unggah dibaca di browser (pdf.js), dikirim bertahap lewat sesi staf.** Alasan: tanpa service role key, tanpa batas waktu fungsi server di paket gratis.

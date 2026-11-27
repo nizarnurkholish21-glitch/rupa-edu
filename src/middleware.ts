@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   });
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith('/ruang')) {
+  if (!user && (request.nextUrl.pathname.startsWith('/ruang') || request.nextUrl.pathname.startsWith('/admin'))) {
     const to = request.nextUrl.clone();
     to.pathname = '/masuk';
     to.search = `?lanjut=${encodeURIComponent(request.nextUrl.pathname)}`;
@@ -31,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|fonts/|brand/|favicon.ico|icon.svg).*)'],
+  matcher: ['/((?!_next/static|_next/image|fonts/|brand/|pdfjs/|favicon.ico|icon.svg).*)'],
 };

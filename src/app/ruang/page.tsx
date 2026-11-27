@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: 'Ruang saya', robots: { index: false 
 // Apa yang tersedia per peran. Status jujur: "Direncanakan" berarti belum dibangun.
 const ROLE_PLAN: Record<AppRole, { greeting: string; items: { label: string; phase: string }[] }> = {
   student: { greeting: 'Ini ruang belajarmu.', items: [
+    { label: 'Buku pelajaran sekolahmu: baca dan cari isinya', phase: 'Tersedia di menu Perpustakaan' },
     { label: 'Pelajaran dan materi pekan ini', phase: 'Fase 2' },
     { label: 'Tugas mendatang dan feedback', phase: 'Fase 2' },
     { label: 'Tutor AI bersumber dari buku', phase: 'Fase 3' },
@@ -17,7 +18,7 @@ const ROLE_PLAN: Record<AppRole, { greeting: string; items: { label: string; pha
   ] },
   teacher: { greeting: 'Ruang kerja guru.', items: [
     { label: 'Kelas yang diampu, modul pekanan, tugas', phase: 'Fase 2' },
-    { label: 'Unggah buku PDF dan indeks bab', phase: 'Fase 2' },
+    { label: 'Perpustakaan buku sekolah: baca per halaman dan cari isi', phase: 'Tersedia di menu Perpustakaan' },
     { label: 'Lesson Studio dan generator kuis (draf AI, disetujui guru)', phase: 'Fase 3' },
     { label: 'Absensi QR dan reminder', phase: 'Fase 5' },
   ] },
@@ -28,7 +29,7 @@ const ROLE_PLAN: Record<AppRole, { greeting: string; items: { label: string; pha
   ] },
   school_admin: { greeting: 'Kelola sekolah Anda.', items: [
     { label: 'Tahun ajaran, kelas, impor siswa dan guru', phase: 'Fase 2' },
-    { label: 'Buku sekolah dan hak akses', phase: 'Fase 2' },
+    { label: 'Buku sekolah dan hak akses', phase: 'Tersedia (perpustakaan)' },
     { label: 'Jejak audit sekolah', phase: 'Fase 2' },
   ] },
   moderator: { greeting: 'Ruang moderasi.', items: [
@@ -36,6 +37,7 @@ const ROLE_PLAN: Record<AppRole, { greeting: string; items: { label: string; pha
   ] },
   super_admin: { greeting: 'Pengaturan platform.', items: [
     { label: 'Status integrasi', phase: 'Tersedia di halaman Status layanan' },
+    { label: 'Unggah dan tinjau buku', phase: 'Tersedia di Kelola buku' },
     { label: 'Registry sumber pengetahuan', phase: 'Fase 6' },
   ] },
 };
@@ -89,7 +91,7 @@ export default async function RuangPage() {
         {plan ? (
           <section aria-labelledby="judul-rencana" style={{ marginTop: 32 }}>
             <h2 id="judul-rencana" className="t-heading-2">Yang akan tersedia di sini</h2>
-            <p className="t-body-sm muted" style={{ marginTop: 4 }}>Belum ada yang bisa diklik: fitur muncul di sini begitu fasenya lulus uji.</p>
+            <p className="t-body-sm muted" style={{ marginTop: 4 }}>Fitur bertanda &ldquo;Tersedia&rdquo; sudah bisa dipakai lewat menu; sisanya muncul begitu fasenya lulus uji.</p>
             <ul className="grid-3" style={{ listStyle: 'none', padding: 0, marginTop: 16 }}>
               {plan.items.map((it) => (
                 <li key={it.label} className="card">
