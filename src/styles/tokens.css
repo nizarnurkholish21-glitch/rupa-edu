@@ -1,0 +1,145 @@
+/* RUPA EDU — dibuat otomatis dari design/tokens.json oleh scripts/build-tokens.mjs. Jangan diedit manual. */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/PlusJakartaSans-800.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/Fraunces-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/Fraunces-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --surface: #FAF6EE;
+  --surface-raised: #FFFFFF;
+  --surface-sunken: #F1EBDF;
+  --ink: #1B1D24;
+  --ink-muted: #585B64;
+  --line: #E6DED0;
+  --line-strong: #857F73;
+  --indigo: #1E3A5F;
+  --on-indigo: #FFFFFF;
+  --kunyit: #E3A82B;
+  --on-kunyit: #1B1D24;
+  --terakota: #B8482A;
+  --on-terakota: #FFFFFF;
+  --daun: #2B6F61;
+  --danger: #A4262C;
+  --focus: var(--indigo);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #14161C;
+  --surface-raised: #1D2029;
+  --surface-sunken: #0F1115;
+  --ink: #EEE9DF;
+  --ink-muted: #A9ABB3;
+  --line: #2A2E37;
+  --line-strong: #6E7380;
+  --indigo: #8FB3E3;
+  --on-indigo: #14161C;
+  --kunyit: #E8B547;
+  --on-kunyit: #14161C;
+  --terakota: #E58566;
+  --on-terakota: #14161C;
+  --daun: #5CB8A3;
+  --danger: #F2857D;
+  --focus: var(--indigo);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+.t-display {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 52px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+.t-heading-1 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 600;
+}
+.t-heading-2 {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+}
+.t-title {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.t-body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+.t-body-sm {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+.t-label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}

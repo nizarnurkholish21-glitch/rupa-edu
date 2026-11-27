@@ -1,0 +1,43 @@
+{
+  "name": "rupa-edu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RUPA EDU — ekosistem pengetahuan, pembelajaran, dan kreativitas. Belajar. Menemukan. Berkarya. Berbagi.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run tests/unit",
+    "test:db": "vitest run tests/db",
+    "test:all": "vitest run",
+    "seed:sql": "node scripts/build-seed-sql.mjs",
+    "seed:demo-users": "node scripts/seed-demo-users.mjs",
+    "check:secrets": "node scripts/check-client-secrets.mjs"
+  },
+  "dependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.119.2",
+    "next": "15.5.28",
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
+    "server-only": "^0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.21",
+    "@types/pg": "8.15.2",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "eslint": "9.27.0",
+    "eslint-config-next": "15.5.28",
+    "pg": "8.16.0",
+    "typescript": "5.8.3",
+    "vitest": "3.2.4"
+  },
+  "engines": {
+    "node": ">=20.9"
+  }
+}
