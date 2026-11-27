@@ -14,3 +14,5 @@ Format: tanggal · keputusan · alasan · konsekuensi.
 10. **27 Nov 2026 · Berkas PDF tidak disimpan; hanya teks per halaman.** Alasan: meminimalkan penyimpanan karya berhak cipta dan biaya penyimpanan di paket gratis. Konsekuensi: gambar dan tata letak asli tidak tampil.
 11. **27 Nov 2026 · Struktur bab otomatis wajib ditinjau manusia.** Database menolak status "siap" tanpa `reviewed_at`.
 12. **27 Nov 2026 · Unggah dibaca di browser (pdf.js), dikirim bertahap lewat sesi staf.** Alasan: tanpa service role key, tanpa batas waktu fungsi server di paket gratis.
+13. **27 Nov 2026 · Isi buku Kementerian dibuka untuk umum (keputusan pemilik), dengan sumber dan tautan SIBI di setiap halaman.** Mengubah keputusan 9. Alasan pemilik: buku tersebut sudah bisa dibaca umum di SIBI. Risiko yang sudah disampaikan: tidak ada izin tertulis untuk penerbitan ulang di buku Kurikulum Merdeka. Mitigasi: atribusi, sakelar per buku, rekomendasi meminta izin tertulis ke Pusat Perbukuan.
+14. **27 Nov 2026 · Pencarian per bab.** Hasil dikelompokkan Buku → Bab → halaman; judul bab ikut dicari; halaman jelajah bab per jenjang/kelas.

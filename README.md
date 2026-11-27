@@ -10,7 +10,7 @@ Repositori ini dibangun bertahap. Setiap fase baru dimulai setelah gerbang uji f
 | --- | --- | --- |
 | 0 · Discovery | Analisis, arsitektur, risiko, roadmap | Selesai |
 | 1 · Fondasi | Design system, akun & peran, isolasi data sekolah (RLS), pencarian publik awal, halaman dasar | **Selesai dan teruji** (lihat [status fitur](docs/status-fitur.md)) |
-| 2a · Perpustakaan | Unggah buku (.pdf/.txt), nomor halaman cetak, bab, tinjauan admin, akses per sekolah, pembaca & pencarian isi | **Selesai, teruji di database**; antarmuka login belum diuji ke Supabase sungguhan |
+| 2a · Perpustakaan | Unggah buku (.pdf/.txt), nomor halaman cetak, bab, tinjauan admin, isi publik/privat per buku, pembaca, pencarian per bab, jelajah bab | **Selesai, teruji di database**; tampilan belum dicoba ke Supabase sungguhan |
 | 2b · LMS | Kelas, modul pekanan, tugas, nilai | Berikutnya |
 | 3–8 | AI belajar, praktik & karya, operasi sekolah, Explore & Atlas, marketplace, produksi | Direncanakan |
 

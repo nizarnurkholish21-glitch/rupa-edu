@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ingestText, type IngestResult } from '@/lib/library/ingest';
-import { bookRow, chapterRows, chunkRows, pageRows, slugify } from '@/lib/library/rows';
+import { bookRow, chapterRows, chunkRows, isGovernmentBook, pageRows, slugify } from '@/lib/library/rows';
 import { pdfToText, sha256Hex } from '@/lib/library/pdf-browser';
 import { abortUpload, appendUploadPart, createUploadedBook, finishUpload } from '../actions';
 
@@ -93,7 +93,9 @@ export function UploadForm() {
           </section>
           <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
             <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} style={{ marginTop: 4 }} />
-            <span>Saya memastikan buku ini boleh diproses untuk pembelajaran di sekolah yang akan diberi akses, dan isinya tidak akan ditampilkan untuk umum.</span>
+            <span>Saya memastikan buku ini boleh diproses untuk pembelajaran. {isGovernmentBook(m.copyrightHolder)
+              ? 'Buku terbitan Kementerian: isinya akan dapat dibaca umum dengan sumber dicantumkan (dapat diubah saat tinjauan).'
+              : 'Isinya hanya untuk sekolah yang diberi akses (dapat diubah saat tinjauan).'}</span>
           </label>
           <button className="btn btn-primary" type="button" disabled={!confirmed} onClick={upload}>Unggah dan lanjut ke tinjauan</button>
         </>

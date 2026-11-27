@@ -2,9 +2,10 @@
 
 ## Kebijakan
 
-- **Privat secara bawaan.** Isi buku (teks halaman, pencarian isi) hanya terlihat oleh siswa, guru, dan admin sekolah yang diberi akses, dan hanya setelah buku ditinjau ("siap"). Wali tidak membaca isi buku.
-- **Metadata boleh publik.** Pengunjung umum melihat judul, penulis, jenjang, ISBN, lisensi, daftar bab, dan tautan ke sumber resmi (bila diisi).
-- **Lisensi dicatat per buku.** Buku Kemendikbudristek/Kemendikdasmen mencantumkan *"Hak Cipta pada Kementerian… Dilindungi Undang-Undang"*; buku tersebut gratis dibaca dan diunduh lewat SIBI, tetapi tidak berlisensi terbuka. Karena itu lisensinya dicatat "Hak cipta dilindungi" dan isinya tidak ditampilkan untuk umum.
+- **Buku Kementerian: isi lengkap untuk umum** (keputusan pemilik, 27 Nov 2026). Buku yang pemegang hak ciptanya Kementerian otomatis diusulkan *isi publik*: siapa pun dapat membaca dan mencari isinya tanpa login, setelah buku ditinjau ("siap"). Setiap halaman menampilkan **sumber** (judul, penulis, tahun, pemegang hak cipta) dan tautan ke versi resmi di SIBI.
+- **Buku lain: privat secara bawaan.** Isi hanya untuk siswa, guru, dan admin sekolah yang diberi akses. Wali hanya membaca buku publik.
+- **Sakelar per buku.** Staf dapat mengubah "Isi buku dapat dibaca umum" di layar tinjauan kapan saja (mis. bila Kementerian meminta).
+- **Catatan hukum.** Buku Kurikulum Merdeka mencantumkan *"Hak Cipta pada Kementerian… Dilindungi Undang-Undang"* tanpa izin tertulis untuk diterbitkan ulang (berbeda dengan buku BSE 2008–2009 yang mencantumkan izin menggandakan). Rekomendasi: kirim permohonan izin tertulis ke Pusat Perbukuan (buku@kemdikbud.go.id, alamat yang tercantum di buku) dan simpan balasannya.
 - **AI tidak memproses buku** sebelum staf mencentang "Izinkan diproses AI" (dipakai mulai Fase 3).
 - **Berkas PDF asli tidak disimpan.** Yang disimpan hanya teks per halaman untuk dibaca dan dicari. Gambar, tabel, dan tata letak asli tidak ditampilkan; pembaca diarahkan ke buku aslinya untuk kutipan resmi.
 - Bukan nasihat hukum. Tinjau kebijakan ini bersama konsultan sebelum peluncuran publik.
@@ -33,6 +34,13 @@ Untuk developer: `npm run import:books -- <berkas…>` dengan `DATABASE_URL` men
 | Uji ujung ke ujung (buku siswa Dasar-Dasar Seni Rupa X Semester 2) | Metadata, 3 bab (hlm 1, 53, 109), dan pencarian "arsiran hatching" → hlm 17–18 benar; siswa sekolah lain tidak mendapat hasil |
 
 Berkas `.txt` tidak memiliki penanda halaman resmi; pemisahnya disimpulkan dari baris kosong. Hasilnya cocok untuk buku-buku ini, tetapi bila memiliki PDF aslinya, unggah PDF agar nomor halaman lebih akurat.
+
+## Pencarian per bab
+
+- **Perpustakaan → kotak cari**: mencari di semua buku sekaligus. Hasil dibagi dua: *Bab yang membahas …* (judul bab yang cocok) dan *Di dalam isi buku* (dikelompokkan Buku → Bab → halaman, dengan cuplikan bertanda). Bisa disaring per jenjang.
+- **Jelajah bab** (`/perpustakaan/bab`): semua bab dari semua buku, per jenjang dan kelas; klik bab untuk langsung ke halaman awalnya.
+- **Halaman buku → Cari di buku ini**: hasil dikelompokkan per bab.
+- **Pencarian umum** (`/cari`): ikut menampilkan bab yang cocok dan isi buku per bab.
 
 ## Belum tersedia
 

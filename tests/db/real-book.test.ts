@@ -34,6 +34,8 @@ describe.skipIf(!REAL)('Buku nyata: Dasar-Dasar Seni Rupa Kelas X Semester 2', (
   it('metadata terbaca dari buku', async () => {
     const { rows } = await pool.query('select title, book_type, level, grade, semester, authors, isbn, page_count from public.books where id = $1', [bookId]);
     expect(rows[0]).toMatchObject({ book_type: 'buku_siswa', level: 'SMK/MAK', grade: 10, semester: 2, page_count: 201 });
+    const pub = await pool.query('select content_public from public.books where id = $1', [bookId]);
+    expect(pub.rows[0].content_public).toBe(true);
     expect(rows[0].authors).toEqual(['Giriluhita Retno Cahyaningsih', 'Haeni Purwanto']);
     expect(rows[0].isbn).toContain('978-623-194-552-5');
   });
@@ -54,8 +56,20 @@ describe.skipIf(!REAL)('Buku nyata: Dasar-Dasar Seni Rupa Kelas X Semester 2', (
     expect(pages.length).toBeGreaterThan(0);
     expect(pages.every((p) => p >= 53 && p <= 108)).toBe(true);
   });
-  it('siswa sekolah B (tanpa akses) tidak menemukan apa pun', async () => {
-    const rows = await as(pool, SISWA_B, async (c) => (await c.query(`select 1 from public.search_book_chunks('arsiran')`)).rows);
-    expect(rows).toHaveLength(0);
+  it('buku Kementerian publik: pengunjung tanpa login menemukan isinya, lengkap dengan bab', async () => {
+    const rows = await as(pool, null, async (c) => (await c.query(`select printed_label, chapter_title from public.search_book_chunks('arsiran hatching')`)).rows);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows[0]?.chapter_title).toMatch(/MENGGAMBAR BENTUK/i);
+  });
+  it('bila dijadikan privat, siswa sekolah B (tanpa akses) dan pengunjung tidak menemukan apa pun', async () => {
+    await pool.query('update public.books set content_public = false where id = $1', [bookId]);
+    try {
+      const b = await as(pool, SISWA_B, async (c) => (await c.query(`select 1 from public.search_book_chunks('arsiran')`)).rows);
+      const anon = await as(pool, null, async (c) => (await c.query(`select 1 from public.search_book_chunks('arsiran')`)).rows);
+      expect(b).toHaveLength(0);
+      expect(anon).toHaveLength(0);
+    } finally {
+      await pool.query('update public.books set content_public = true where id = $1', [bookId]);
+    }
   });
 });

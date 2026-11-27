@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer';
 import { getCurrentUser } from '@/lib/auth';
 import { canReadBook, citation, getBook, getChapters, getPage } from '@/lib/library/queries';
 import { cleanQuery } from '@/lib/search';
+import { SourceNote } from '@/components/library/SourceNote';
 
 type Props = { params: Promise<{ slug: string; hlm: string }>; searchParams: Promise<{ q?: string }> };
 
@@ -44,7 +45,7 @@ export default async function HalamanPage({ params, searchParams }: Props) {
       <main id="konten" className="container" style={{ paddingTop: 32 }}>
         <nav aria-label="Jejak navigasi" className="t-body-sm muted">
           <Link href="/perpustakaan">Perpustakaan</Link> / <Link href={`/perpustakaan/${slug}${qs}`}>{book.title}</Link>
-          {chapter ? <> / {chapter.kind === 'bagian' ? chapter.title : `Bab ${chapter.ordinal}`}</> : null}
+          {chapter ? <> / <Link href={`/perpustakaan/${slug}/${chapter.start_index + 1}`}>{chapter.kind === 'bagian' ? chapter.title : `${chapter.kind === 'unit' ? 'Unit' : 'Bab'} ${chapter.ordinal}: ${chapter.title}`}</Link></> : null}
         </nav>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, marginTop: 16, maxWidth: '72ch' }}>
           <h1 className="t-heading-2">
@@ -58,8 +59,9 @@ export default async function HalamanPage({ params, searchParams }: Props) {
           {paragraphs.map((p, i) => <p key={i} style={{ marginTop: i ? 12 : 0 }}>{q ? highlight(p, q) : p}</p>)}
         </article>
         <p className="t-body-sm muted" style={{ marginTop: 8, maxWidth: '72ch' }}>
-          Teks hasil ekstraksi otomatis; gambar, tabel, dan tata letak asli tidak ditampilkan. Periksa buku aslinya untuk kutipan resmi.
+          Teks hasil ekstraksi otomatis; gambar, tabel, dan tata letak asli tidak ditampilkan.
         </p>
+        <div style={{ marginTop: 16, maxWidth: '72ch' }}><SourceNote book={book} /></div>
 
         <section aria-labelledby="judul-sitasi" style={{ marginTop: 16, maxWidth: '72ch' }}>
           <h2 id="judul-sitasi" className="t-body-sm" style={{ fontWeight: 600 }}>Kutip halaman ini</h2>

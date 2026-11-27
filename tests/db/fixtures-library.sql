@@ -25,3 +25,16 @@ insert into public.book_chunks (book_id, page_index, ord, content) values
   ('40000000-0000-0000-0000-00000000000a', 2, 1, 'Perspektif dua titik hilang dipakai untuk menggambar bangunan dari sudutnya.'),
   ('40000000-0000-0000-0000-00000000000b', 0, 0, 'Draf: teknik arsiran belum ditinjau.'),
   ('40000000-0000-0000-0000-00000000000c', 0, 0, 'Rahasia: teknik arsiran khusus sekolah B.');
+
+-- Buku publik (isi terbuka untuk umum) dan draf yang ditandai publik (tetap tidak boleh terlihat).
+insert into public.books (id, slug, title, book_type, level, grade, status, reviewed_at, metadata_public, content_public, license_kind, page_count) values
+  ('40000000-0000-0000-0000-00000000000d', 'buku-uji-publik', 'Buku Uji Publik Kelas V', 'buku_guru', 'SD/MI', 5, 'siap', now(), true, true, 'hak_cipta_dilindungi', 2);
+update public.books set content_public = true where slug = 'buku-uji-draf';
+insert into public.book_pages (book_id, page_index, printed_label, label_confidence, content) values
+  ('40000000-0000-0000-0000-00000000000d', 0, '1', 'terdeteksi', 'Bab 4 Berkarya Makrame.'),
+  ('40000000-0000-0000-0000-00000000000d', 1, '2', 'terdeteksi', 'Makrame dibuat dengan simpul. Teknik arsiran tidak dipakai di sini.');
+insert into public.book_chapters (book_id, ordinal, kind, title, start_index, end_index, source, auto_verified, reviewed) values
+  ('40000000-0000-0000-0000-00000000000d', 4, 'bab', 'Mengeksplorasi Simpul dan Berkarya Makrame', 0, 1, 'gabungan', true, true),
+  ('40000000-0000-0000-0000-00000000000b', 1, 'bab', 'Menggambar Draf', 0, 0, 'manual', false, false);
+insert into public.book_chunks (book_id, page_index, ord, content) values
+  ('40000000-0000-0000-0000-00000000000d', 1, 0, 'Makrame dibuat dengan simpul. Teknik arsiran tidak dipakai di sini.');

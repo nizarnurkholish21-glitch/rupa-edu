@@ -23,11 +23,11 @@ export async function importBook(client: pg.PoolClient | pg.Client, path: string
     const { rows } = await client.query(
       `insert into public.books (slug, title, book_type, level, grade, semester, subject, edition, year, authors, publisher, isbn,
         copyright_holder, license_kind, license_note, page_count, label_coverage, metadata_public, allow_ai_processing, status,
-        source_file_name, source_sha256, warnings)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) returning id`,
+        source_file_name, source_sha256, warnings, content_public)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24) returning id`,
       [b.slug, b.title, b.book_type, b.level, b.grade, b.semester, b.subject, b.edition, b.year, b.authors, b.publisher, b.isbn,
         b.copyright_holder, b.license_kind, b.license_note, b.page_count, b.label_coverage, b.metadata_public, b.allow_ai_processing,
-        b.status, b.source_file_name, b.source_sha256, b.warnings]);
+        b.status, b.source_file_name, b.source_sha256, b.warnings, b.content_public]);
     const id = rows[0].id as string;
     const pages = pageRows(r);
     for (let i = 0; i < pages.length; i += 100) {

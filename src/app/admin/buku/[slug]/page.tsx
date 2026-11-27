@@ -120,7 +120,8 @@ export default async function TinjauBukuPage({ params, searchParams }: Props) {
               <select id="license_kind" name="license_kind" defaultValue={book.license_kind}>{Object.entries(LICENSE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
             <div className="field"><label htmlFor="license_note">Catatan lisensi</label><input id="license_note" name="license_note" defaultValue={book.license_note} /></div>
             <div className="field"><label htmlFor="official_url">Tautan sumber resmi (https://…, opsional)</label><input id="official_url" name="official_url" type="url" defaultValue={book.official_url ?? ''} placeholder="Salin dari halaman buku di SIBI bila ada" /></div>
-            <label style={{ display: 'flex', gap: 8 }}><input type="checkbox" name="metadata_public" defaultChecked={book.metadata_public} /> Tampilkan keterangan buku (bukan isi) untuk umum</label>
+            <label style={{ display: 'flex', gap: 8 }}><input type="checkbox" name="metadata_public" defaultChecked={book.metadata_public} /> Tampilkan keterangan buku untuk umum</label>
+            <label style={{ display: 'flex', gap: 8 }}><input type="checkbox" name="content_public" defaultChecked={book.content_public} /> Isi buku dapat dibaca umum tanpa login (sumber selalu dicantumkan)</label>
             <label style={{ display: 'flex', gap: 8 }}><input type="checkbox" name="allow_ai_processing" defaultChecked={book.allow_ai_processing} /> Izinkan diproses AI (Fase 3). Centang hanya bila lisensi mengizinkan.</label>
             <button className="btn btn-primary" type="submit">Simpan metadata</button>
           </form>
@@ -146,7 +147,7 @@ export default async function TinjauBukuPage({ params, searchParams }: Props) {
         {/* 4. Status */}
         <section aria-labelledby="judul-status" style={{ marginTop: 40, maxWidth: '72ch' }}>
           <h2 id="judul-status" className="t-heading-2">4. Terbitkan</h2>
-          <p className="t-body-sm muted" style={{ marginTop: 4 }}>Setelah bab dan metadata benar, tandai siap. Isi buku lalu terlihat oleh siswa dan guru di sekolah yang dipilih di atas.</p>
+          <p className="t-body-sm muted" style={{ marginTop: 4 }}>Setelah bab dan metadata benar, tandai siap. Isi buku lalu terlihat oleh {book.content_public ? 'semua pengunjung' : 'siswa dan guru di sekolah yang dipilih di atas'}.</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 12 }}>
             {book.status !== 'siap' ? (
               <form action={setBookStatus}><input type="hidden" name="id" value={book.id} /><input type="hidden" name="slug" value={book.slug} /><input type="hidden" name="status" value="siap" />

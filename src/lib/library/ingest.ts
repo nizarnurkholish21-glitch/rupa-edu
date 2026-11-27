@@ -65,6 +65,10 @@ const LIGATURE_FIXES: [RegExp, string][] = [
   [/identiikasi/g, 'identifikasi'], [/klasiikasi/g, 'klasifikasi'], [/modiikasi/g, 'modifikasi'],
   [/spesiik/g, 'spesifik'], [/signiikan/g, 'signifikan'], [/sertiikat/g, 'sertifikat'],
   [/\bdeinisi/g, 'definisi'], [/\bgrais\b/g, 'grafis'], [/\bGrais\b/g, 'Grafis'], [/\bkonlik/g, 'konflik'],
+  // "-grafi" kehilangan "f": tipograi, fotograi, kaligrai, geograi, biograi …
+  [/([Gg])rai\b/g, '$1rafi'], [/([Gg])raik\b/g, '$1rafik'], [/([Gg])raiti\b/g, '$1rafiti'],
+  [/\bTauik\b/g, 'Taufik'], [/\bilm\b/g, 'film'], [/\bIlm\b/g, 'Film'], [/\binal\b/g, 'final'],
+  [/\bmodiikasi/g, 'modifikasi'], [/\bverifikasi/g, 'verifikasi'], [/\bveriikasi/g, 'verifikasi'],
 ];
 
 /** Membersihkan artefak ekstraksi yang umum: tanda hubung lunak, spasi ganda, ligatur fi/fl yang hilang. */

@@ -30,6 +30,7 @@ const MetaSchema = z.object({
   license_note: z.string().max(1000),
   official_url: z.string().url().startsWith('https://').nullable(),
   metadata_public: z.boolean(),
+  content_public: z.boolean(),
   allow_ai_processing: z.boolean(),
 });
 
@@ -50,6 +51,7 @@ export async function updateBookMeta(formData: FormData) {
     license_note: String(formData.get('license_note') ?? ''),
     official_url: String(formData.get('official_url') ?? '').trim() || null,
     metadata_public: formData.get('metadata_public') === 'on',
+    content_public: formData.get('content_public') === 'on',
     allow_ai_processing: formData.get('allow_ai_processing') === 'on',
   });
   const { id, ...rest } = parsed;
@@ -151,6 +153,7 @@ const NewBookSchema = z.object({
   source_file_name: z.string().max(255).nullable(),
   source_sha256: z.string().regex(/^[0-9a-f]{64}$/).nullable(),
   warnings: z.array(z.string().max(300)).max(30),
+  content_public: z.boolean(),
 });
 
 export async function createUploadedBook(input: unknown): Promise<{ id: string; slug: string } | { error: string }> {

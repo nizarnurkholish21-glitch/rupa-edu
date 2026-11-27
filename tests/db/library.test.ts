@@ -16,7 +16,7 @@ const U = {
 };
 const SCHOOL_A = '10000000-0000-0000-0000-00000000000a';
 const SCHOOL_B = '10000000-0000-0000-0000-00000000000b';
-const BOOK = { siap: '40000000-0000-0000-0000-00000000000a', draf: '40000000-0000-0000-0000-00000000000b', tertutup: '40000000-0000-0000-0000-00000000000c' };
+const BOOK = { siap: '40000000-0000-0000-0000-00000000000a', draf: '40000000-0000-0000-0000-00000000000b', tertutup: '40000000-0000-0000-0000-00000000000c', publik: '40000000-0000-0000-0000-00000000000d' };
 
 let pool: pg.Pool;
 beforeAll(async () => {
@@ -31,28 +31,43 @@ const pagesSeen = (actor: { id: string }) => as(pool, actor, async (c) => new Se
 
 describe('Pengunjung tanpa login', () => {
   it('melihat metadata buku yang siap dan publik saja', async () => {
-    expect(await slugsSeen(null)).toEqual(['buku-uji-siap']);
+    expect(await slugsSeen(null)).toEqual(['buku-uji-publik', 'buku-uji-siap']);
   });
-  it('melihat daftar bab buku publik, tetapi tidak bab buku tertutup', async () => {
-    const rows = await as(pool, null, async (c) => (await c.query('select title from public.book_chapters')).rows);
-    expect(rows.map((r) => r.title)).toEqual(['Menggambar']);
+  it('melihat daftar bab buku dengan metadata publik, tidak bab buku tertutup atau draf', async () => {
+    const rows = await as(pool, null, async (c) => (await c.query('select title from public.book_chapters order by title')).rows);
+    expect(rows.map((r) => r.title)).toEqual(['Mengeksplorasi Simpul dan Berkarya Makrame', 'Menggambar']);
   });
-  it('tidak bisa membaca isi halaman atau mencari di dalam buku', async () => {
-    await expect(as(pool, null, (c) => c.query('select * from public.book_pages'))).rejects.toThrow(/permission denied/);
-    await expect(as(pool, null, (c) => c.query(`select * from public.search_book_chunks('arsiran')`))).rejects.toThrow(/permission denied/);
+  it('membaca isi buku publik saja; buku sekolah dan draf bertanda publik tetap tertutup', async () => {
+    const seen = await as(pool, null, async (c) => new Set((await c.query('select book_id from public.book_pages')).rows.map((r) => r.book_id)));
+    expect(seen).toEqual(new Set([BOOK.publik]));
+  });
+  it('mencari isi buku publik, lengkap dengan bab dan halaman', async () => {
+    const rows = await as(pool, null, async (c) => (await c.query(`select book_slug, chapter_title, chapter_ordinal, printed_label from public.search_book_chunks('arsiran')`)).rows);
+    expect(rows).toEqual([{ book_slug: 'buku-uji-publik', chapter_title: 'Mengeksplorasi Simpul dan Berkarya Makrame', chapter_ordinal: 4, printed_label: '2' }]);
+  });
+  it('judul bab ikut dicari, termasuk bab buku yang metadatanya publik', async () => {
+    const rows = await as(pool, null, async (c) => (await c.query(`select book_slug, chapter_title from public.search_chapters('makrame')`)).rows);
+    expect(rows).toEqual([{ book_slug: 'buku-uji-publik', chapter_title: 'Mengeksplorasi Simpul dan Berkarya Makrame' }]);
+    const gambar = await as(pool, null, async (c) => (await c.query(`select book_slug from public.search_chapters('menggambar')`)).rows);
+    expect(gambar.map((r) => r.book_slug)).toEqual(['buku-uji-siap']);
+  });
+  it('tidak bisa menulis apa pun', async () => {
+    await expect(as(pool, null, (c) => c.query(`insert into public.book_pages (book_id, page_index, content) values ($1, 9, 'x')`, [BOOK.publik])))
+      .rejects.toThrow(/permission denied/);
   });
 });
 
 describe('Siswa dan guru di sekolah yang diberi akses', () => {
-  it('siswa sekolah A membaca isi buku siap, tidak buku draf atau buku sekolah lain', async () => {
-    expect(await pagesSeen(U.siswaA1)).toEqual(new Set([BOOK.siap]));
+  it('siswa sekolah A membaca buku sekolahnya dan buku publik, tidak buku draf atau buku sekolah lain', async () => {
+    expect(await pagesSeen(U.siswaA1)).toEqual(new Set([BOOK.siap, BOOK.publik]));
   });
   it('guru sekolah A membaca isi yang sama', async () => {
-    expect(await pagesSeen(U.guruA1)).toEqual(new Set([BOOK.siap]));
+    expect(await pagesSeen(U.guruA1)).toEqual(new Set([BOOK.siap, BOOK.publik]));
   });
-  it('pencarian dalam buku hanya memberi hasil dari buku yang boleh dibaca, lengkap dengan halaman cetak', async () => {
-    const rows = await as(pool, U.siswaA1, async (c) => (await c.query(`select book_slug, printed_label, snippet from public.search_book_chunks('arsiran')`)).rows);
+  it('pencarian dalam buku hanya memberi hasil dari buku yang boleh dibaca, lengkap dengan halaman cetak dan bab', async () => {
+    const rows = await as(pool, U.siswaA1, async (c) => (await c.query(`select book_slug, printed_label, snippet, chapter_title from public.search_book_chunks('arsiran', $1)`, [BOOK.siap])).rows);
     expect(rows.map((r) => r.book_slug)).toEqual(['buku-uji-siap']);
+    expect(rows[0]?.chapter_title).toBe('Menggambar');
     expect(rows[0]?.printed_label).toBe('1');
     expect(rows[0]?.snippet).toMatch(/«/);
   });
@@ -70,15 +85,15 @@ describe('Siswa dan guru di sekolah yang diberi akses', () => {
 
 describe('Sekolah lain, wali, dan pengguna umum', () => {
   it('guru sekolah B membaca buku tertutupnya sendiri, bukan isi buku sekolah A', async () => {
-    expect(await pagesSeen(U.guruB1)).toEqual(new Set([BOOK.tertutup]));
-    expect(await slugsSeen(U.guruB1)).toEqual(['buku-uji-siap', 'buku-uji-tertutup']);
+    expect(await pagesSeen(U.guruB1)).toEqual(new Set([BOOK.tertutup, BOOK.publik]));
+    expect(await slugsSeen(U.guruB1)).toEqual(['buku-uji-publik', 'buku-uji-siap', 'buku-uji-tertutup']);
   });
-  it('wali tidak membaca isi buku (hanya siswa, guru, admin sekolah)', async () => {
-    expect(await pagesSeen(U.waliA1)).toEqual(new Set());
+  it('wali tidak membaca isi buku sekolah (hanya siswa, guru, admin sekolah), tetapi membaca buku publik', async () => {
+    expect(await pagesSeen(U.waliA1)).toEqual(new Set([BOOK.publik]));
   });
-  it('pengguna umum hanya melihat metadata publik', async () => {
-    expect(await slugsSeen(U.umum)).toEqual(['buku-uji-siap']);
-    expect(await pagesSeen(U.umum)).toEqual(new Set());
+  it('pengguna umum melihat metadata publik dan isi buku publik saja', async () => {
+    expect(await slugsSeen(U.umum)).toEqual(['buku-uji-publik', 'buku-uji-siap']);
+    expect(await pagesSeen(U.umum)).toEqual(new Set([BOOK.publik]));
   });
 });
 
@@ -104,7 +119,7 @@ describe('Pemberian akses', () => {
 
 describe('Staf dan aturan status', () => {
   it('staf melihat semua buku termasuk draf', async () => {
-    expect(await slugsSeen(U.superAdmin)).toEqual(['buku-uji-draf', 'buku-uji-siap', 'buku-uji-tertutup']);
+    expect(await slugsSeen(U.superAdmin)).toEqual(['buku-uji-draf', 'buku-uji-publik', 'buku-uji-siap', 'buku-uji-tertutup']);
   });
   it('buku tidak bisa berstatus siap tanpa tinjauan manusia', async () => {
     await expect(as(pool, U.superAdmin, (c) => c.query(`update public.books set status = 'siap' where id = $1`, [BOOK.draf])))

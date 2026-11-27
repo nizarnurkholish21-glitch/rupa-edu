@@ -41,15 +41,18 @@ Gerbang Master Prompt Fase 2 (perpustakaan): *satu buku nyata diproses dan dicar
 
 | Fitur | Status | Bukti |
 | --- | --- | --- |
-| Skema perpustakaan (buku, akses sekolah, halaman, bab, potongan) + RLS | Teruji | `tests/db/library.test.ts` 17/17 |
-| Buku privat: isi hanya untuk siswa/guru/admin sekolah ber-akses, buku berstatus siap | Teruji | `library.test.ts` |
+| Skema perpustakaan (buku, akses sekolah, halaman, bab, potongan) + RLS | Teruji | `tests/db/library.test.ts` 24/24 |
+| Buku privat (non-Kementerian): isi hanya untuk siswa/guru/admin sekolah ber-akses, buku berstatus siap | Teruji | `library.test.ts` |
 | Metadata & daftar bab publik; buku tertutup/draf tidak terlihat publik | Teruji | `library.test.ts` |
 | Status "siap" wajib ditinjau manusia (constraint database) | Teruji | `library.test.ts` |
 | Pemroses buku: halaman, nomor halaman cetak (arab/romawi), metadata, bab, potongan | Teruji | `tests/unit/ingest.test.ts` 16/16 + 14 buku nyata (lihat `docs/perpustakaan.md`) |
 | Pencarian isi buku (full-text Indonesia, cuplikan bertanda, halaman cetak) | Teruji | `library.test.ts` + uji buku nyata |
 | Impor lewat skrip (`npm run import:books`) | Teruji | 14 buku diimpor ke PostgreSQL lokal tanpa galat |
 | Ekstraksi PDF di browser (pdf.js) | Teruji (algoritma) | Dibandingkan dengan pdftotext pada 4 PDF: struktur bab sama di 3, satu bab ganda di 1 (tertangkap saat tinjauan) |
-| Halaman Perpustakaan, detail buku, pembaca per halaman + sitasi, cari di buku | Belum diverifikasi | Build lulus; butuh Supabase + login untuk dicoba |
+| Isi buku publik per buku (anon membaca & mencari; draf/buku privat tetap tertutup) | Teruji | `library.test.ts` (24 tes) |
+| Pencarian isi menyertakan bab; pencarian judul bab | Teruji | `library.test.ts` + uji pada 14 buku (mis. "makrame" → Bab 4 SD V; "perspektif dua titik" → Bab Gambar Teknik) |
+| Pengelompokan hasil Buku → Bab → halaman | Teruji | `tests/unit/group.test.ts` |
+| Halaman Perpustakaan (cari semua buku), Jelajah bab, detail buku, pembaca per halaman + sumber/SIBI | Belum diverifikasi | Build lulus; butuh Supabase berisi buku untuk dicoba |
 | Kelola buku: daftar, tinjau bab/metadata/akses, terbitkan, unggah | Belum diverifikasi | Build lulus; butuh Supabase + akun super admin |
 | Hasil buku di pencarian umum (isi untuk yang berhak, kartu metadata untuk umum) | Belum diverifikasi | Butuh Supabase |
 | OCR PDF pindaian | Direncanakan | Unggahan tanpa teks ditolak dengan pesan jelas |
@@ -63,5 +66,5 @@ Gerbang Master Prompt Fase 2 (perpustakaan): *satu buku nyata diproses dan dicar
 - Paket gratis: tanpa backup dan non-komersial. Jangan memasukkan data siswa sungguhan.
 - Login belum diuji terhadap Supabase sungguhan; uji manual begitu proyek Supabase dibuat.
 - Belum ada penanggung jawab teknis untuk pembaruan keamanan dependensi.
-- Buku Kementerian berhak cipta: kebijakan "privat untuk sekolah ber-akses" perlu ditinjau konsultan hukum sebelum peluncuran publik.
+- Isi buku Kementerian dibuka untuk umum tanpa izin tertulis penerbitan ulang: disarankan meminta izin ke Pusat Perbukuan dan meninjaunya bersama konsultan hukum.
 - Dua buku (SD IV, SMA XII) butuh koreksi struktur bab manual sebelum siap.

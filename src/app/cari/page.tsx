@@ -5,7 +5,9 @@ import { Footer } from '@/components/Footer';
 import { DemoBadge } from '@/components/DemoBadge';
 import { cleanQuery, POPULAR_TOPICS, searchPublic } from '@/lib/search';
 import { KIND_LABEL } from '@/lib/search/types';
-import { bookSubtitle, searchBookMetadata, searchBooks } from '@/lib/library/queries';
+import { bookSubtitle, searchBookMetadata, searchBooks, searchChapters } from '@/lib/library/queries';
+import { ChapterHits } from '@/components/library/ChapterHits';
+import { GroupedHits } from '@/components/library/GroupedHits';
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
 
@@ -18,7 +20,9 @@ export default async function CariPage({ searchParams }: Props) {
   const q = cleanQuery((await searchParams).q);
   const result = q ? await searchPublic(q) : null;
   // Buku: hasil isi hanya untuk pengguna yang berhak (RLS); pengunjung melihat kartu keterangan buku saja.
-  const [bookHits, bookCards] = q ? await Promise.all([searchBooks(q, undefined, 8), searchBookMetadata(q)]) : [[], []];
+  const [bookHits, bookCards, chapterHits] = q
+    ? await Promise.all([searchBooks(q, { limit: 30 }), searchBookMetadata(q), searchChapters(q, 6)])
+    : [[], [], []];
 
   return (
     <>
@@ -51,18 +55,19 @@ export default async function CariPage({ searchParams }: Props) {
               </p>
             ) : null}
 
+            {chapterHits.length > 0 ? (
+              <section aria-labelledby="judul-bab-cocok" style={{ marginTop: 24, maxWidth: '72ch' }}>
+                <h2 id="judul-bab-cocok" className="t-heading-2">Bab buku yang membahasnya</h2>
+                <div style={{ marginTop: 12 }}><ChapterHits chapters={chapterHits} /></div>
+              </section>
+            ) : null}
             {bookHits.length > 0 ? (
               <section aria-labelledby="judul-hasil-buku" style={{ marginTop: 24, maxWidth: '72ch' }}>
-                <h2 id="judul-hasil-buku" className="t-heading-2">Di buku sekolah Anda</h2>
-                <ol className="results" style={{ marginTop: 12 }}>
-                  {bookHits.map((h, i) => (
-                    <li key={i} className="result">
-                      <h3 className="t-title"><Link href={`/perpustakaan/${h.book_slug}/${h.page_index + 1}?q=${encodeURIComponent(result.query)}`}>{h.book_title}</Link></h3>
-                      <p className="t-body-sm muted">{h.printed_label ? `Halaman ${h.printed_label}${h.label_confidence === 'disimpulkan' ? ' (perkiraan)' : ''}` : `Halaman berkas ${h.page_index + 1}`}</p>
-                      <p style={{ marginTop: 4 }}>{h.snippet.split(/«|»/).map((part, j) => (j % 2 === 1 ? <mark key={j}>{part}</mark> : <span key={j}>{part}</span>))}</p>
-                    </li>
-                  ))}
-                </ol>
+                <h2 id="judul-hasil-buku" className="t-heading-2">Di dalam buku pelajaran</h2>
+                <p className="t-body-sm muted" style={{ marginTop: 4, marginBottom: 12 }}>
+                  Dikelompokkan per buku dan bab. <Link href={`/perpustakaan?q=${encodeURIComponent(result.query)}`}>Lihat semua hasil di Perpustakaan</Link>
+                </p>
+                <GroupedHits hits={bookHits} query={result.query} maxPerChapter={2} />
               </section>
             ) : null}
             {bookHits.length === 0 && bookCards.length > 0 ? (

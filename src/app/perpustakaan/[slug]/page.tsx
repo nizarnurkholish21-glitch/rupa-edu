@@ -7,6 +7,8 @@ import { getCurrentUser, isStaff } from '@/lib/auth';
 import {
   bookSubtitle, canReadBook, getBook, getChapters, getLabels, LICENSE_LABEL, searchBooks, STATUS_LABEL,
 } from '@/lib/library/queries';
+import { GroupedHits } from '@/components/library/GroupedHits';
+import { SourceNote } from '@/components/library/SourceNote';
 import { cleanQuery } from '@/lib/search';
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ q?: string }> };
@@ -23,7 +25,7 @@ export default async function BukuPage({ params, searchParams }: Props) {
   const q = cleanQuery((await searchParams).q);
   const [user, chapters, readable] = await Promise.all([getCurrentUser(), getChapters(book.id), canReadBook(book.id)]);
   const labels = readable ? await getLabels(book.id, chapters.map((c) => c.start_index)) : new Map<number, string | null>();
-  const hits = readable && q ? await searchBooks(q, book.id, 30) : [];
+  const hits = readable && q ? await searchBooks(q, { bookId: book.id, limit: 100 }) : [];
 
   return (
     <>
@@ -50,6 +52,8 @@ export default async function BukuPage({ params, searchParams }: Props) {
             </dl>
           </section>
 
+          {readable ? <div style={{ maxWidth: '72ch' }}><SourceNote book={book} /></div> : null}
+
           {readable ? (
             <section aria-labelledby="judul-cari-buku" style={{ maxWidth: '72ch' }}>
               <h2 id="judul-cari-buku" className="t-heading-2">Cari di buku ini</h2>
@@ -62,17 +66,10 @@ export default async function BukuPage({ params, searchParams }: Props) {
                 hits.length === 0 ? (
                   <p className="muted" style={{ marginTop: 16 }}>Tidak ditemukan &ldquo;{q}&rdquo; di buku ini. Coba kata lain.</p>
                 ) : (
-                  <ol className="results" style={{ marginTop: 16 }}>
-                    {hits.map((h, i) => (
-                      <li key={i} className="result">
-                        <h3 className="t-title"><Link href={`/perpustakaan/${book.slug}/${h.page_index + 1}?q=${encodeURIComponent(q)}`}>
-                          {h.printed_label ? `Halaman ${h.printed_label}` : `Halaman berkas ${h.page_index + 1}`}
-                          {h.label_confidence === 'disimpulkan' ? ' (perkiraan)' : ''}
-                        </Link></h3>
-                        <p style={{ marginTop: 4 }}>{h.snippet.split(/«|»/).map((part, j) => (j % 2 === 1 ? <mark key={j}>{part}</mark> : <span key={j}>{part}</span>))}</p>
-                      </li>
-                    ))}
-                  </ol>
+                  <div style={{ marginTop: 16 }}>
+                    <p className="t-body-sm muted" style={{ marginBottom: 12 }}>{hits.length} halaman cocok, dikelompokkan per bab.</p>
+                    <GroupedHits hits={hits} query={q} showBook={false} maxPerChapter={50} />
+                  </div>
                 )
               ) : null}
             </section>

@@ -111,9 +111,15 @@ describe('potongan untuk pencarian', () => {
 
 describe('baris database', () => {
   const r = ingestText(syntheticBook());
-  it('buku baru selalu privat dari sisi AI dan butuh tinjauan', () => {
+  it('buku Kementerian: isi publik dengan sumber, tetapi tetap butuh tinjauan dan tanpa AI', () => {
     const b = bookRow(r, { fileName: 'uji.pdf', sha256: 'a'.repeat(64) });
-    expect(b).toMatchObject({ status: 'perlu_tinjauan', license_kind: 'hak_cipta_dilindungi', allow_ai_processing: false, page_count: 34 });
+    expect(b).toMatchObject({ status: 'perlu_tinjauan', license_kind: 'hak_cipta_dilindungi', allow_ai_processing: false, content_public: true, page_count: 34 });
+    expect(b.license_note).toMatch(/mencantumkan sumber/);
+  });
+  it('buku penerbit lain tetap privat secara bawaan', () => {
+    const other = { ...r, metadata: { ...r.metadata, copyrightHolder: 'Penerbit Swasta' } };
+    const b = bookRow(other, {});
+    expect(b.content_public).toBe(false);
     expect(b.license_note).toMatch(/tidak ditampilkan publik/);
   });
   it('bab hasil otomatis belum dianggap ditinjau', () => {
