@@ -26,7 +26,7 @@ Label: **Teruji** = dibangun dan lulus tes otomatis/manual yang dicatat · **Bel
 | Login email + kata sandi, keluar, perlindungan /ruang | Belum diverifikasi | Kode lengkap; perlu proyek Supabase (Bagian B panduan setup) |
 | Ruang per peran (/ruang) | Belum diverifikasi | Menampilkan peran dan rencana fitur, tanpa tombol palsu |
 | Skrip akun demo | Belum diverifikasi | Perlu proyek Supabase + service role key |
-| CI GitHub Actions (lint, tipe, tes unit, tes RLS, build, cek rahasia) | Belum diverifikasi | Berjalan otomatis setelah kode pertama di-push |
+| CI GitHub Actions (lint, tipe, tes unit, tes RLS, build, cek rahasia) | Teruji | Run pertama di GitHub lulus semua langkah (27 Nov 2026) |
 | Claude API | Menunggu kredensial | Dipakai mulai Fase 3 |
 | Pencarian semantik (embedding) | Direncanakan | Penyedia belum dipilih |
 | Autocomplete, riwayat pencarian, command palette | Direncanakan | Fase 6 (riwayat hanya dengan kontrol privasi) |
