@@ -23,7 +23,9 @@ export default function StatusPage() {
               </div>
               {i.status === 'terhubung'
                 ? <span className="badge badge-ok">Terhubung</span>
-                : <span className="badge badge-off">Belum dikonfigurasi</span>}
+                : i.status === 'salah_konfigurasi'
+                  ? <span className="badge badge-off" role="alert">Perlu diperbaiki: {i.note}</span>
+                  : <span className="badge badge-off">Belum dikonfigurasi</span>}
             </li>
           ))}
         </ul>

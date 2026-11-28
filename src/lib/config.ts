@@ -2,23 +2,25 @@
 // jika kunci belum ada, fitur terkait menampilkan "belum dikonfigurasi".
 import 'server-only';
 
-export type IntegrationStatus = 'terhubung' | 'belum_dikonfigurasi';
+import { resolveSupabaseEnv, SUPABASE_ENV_MESSAGE } from './supabase-key';
+
+export type IntegrationStatus = 'terhubung' | 'belum_dikonfigurasi' | 'salah_konfigurasi';
 
 export interface Integration {
   key: string;
   name: string;
   purpose: string;
   status: IntegrationStatus;
+  /** Pesan untuk pemilik bila konfigurasi salah (tanpa menampilkan isi kunci). */
+  note?: string;
   phase: string;
 }
 
 const has = (v: string | undefined) => typeof v === 'string' && v.trim().length > 0;
 
 export function supabaseConfig(): { url: string; anonKey: string } | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!has(url) || !has(anonKey)) return null;
-  return { url: url!.trim(), anonKey: anonKey!.trim() };
+  const r = resolveSupabaseEnv(process.env);
+  return r.ok ? { url: r.url, anonKey: r.anonKey } : null;
 }
 
 export function integrations(): Integration[] {
@@ -27,7 +29,12 @@ export function integrations(): Integration[] {
       key: 'supabase',
       name: 'Supabase',
       purpose: 'Database, login, dan penyimpanan',
-      status: supabaseConfig() ? 'terhubung' : 'belum_dikonfigurasi',
+      ...(() => {
+        const r = resolveSupabaseEnv(process.env);
+        if (r.ok) return { status: 'terhubung' as const };
+        if (r.reason === 'belum_diisi') return { status: 'belum_dikonfigurasi' as const };
+        return { status: 'salah_konfigurasi' as const, note: SUPABASE_ENV_MESSAGE[r.reason] };
+      })(),
       phase: 'Fase 1',
     },
     {

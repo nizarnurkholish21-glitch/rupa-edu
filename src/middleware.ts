@@ -1,13 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { resolveSupabaseEnv } from '@/lib/supabase-key';
 
 // Menyegarkan sesi Supabase di setiap permintaan dan melindungi /ruang.
 // Bila Supabase belum dikonfigurasi, /ruang tetap terbuka tetapi hanya menampilkan status "belum dikonfigurasi".
 export async function middleware(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let response = NextResponse.next({ request });
-  if (!url || !key) return response;
+  const env = resolveSupabaseEnv(process.env);
+  if (!env.ok) return response;
+  const { url, anonKey: key } = env;
 
   const supabase = createServerClient(url, key, {
     cookies: {
