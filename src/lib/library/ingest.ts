@@ -25,6 +25,8 @@ export interface ChapterProposal {
 
 export interface BookMetadataProposal {
   title: string | null;
+  /** Mata pelajaran, mis. "Seni Rupa" atau "Prakarya dan Kewirausahaan: Kerajinan". */
+  subject: string | null;
   bookType: 'buku_siswa' | 'buku_guru' | 'lainnya';
   level: 'SD/MI' | 'SMP/MTs' | 'SMA/MA' | 'SMK/MAK' | null;
   grade: number | null;
@@ -134,8 +136,21 @@ export function detectPageLabels(pages: string[]): { labels: PageLabel[]; covera
   const labels: PageLabel[] = Array.from({ length: n }, () => ({ label: null, confidence: 'tidak_diketahui' as LabelConfidence }));
   if (bestOffset !== null) {
     const firstArabic = 1 - bestOffset; // indeks 1-based dari halaman cetak "1"
+    // Selisih bisa bergeser di tengah buku (halaman sisipan/kosong dibuang dari PDF).
+    // Untuk tiap halaman, pakai selisih yang paling banyak didukung nomor cetak di sekitarnya (±12 halaman),
+    // asalkan dukungannya jelas (≥3 suara dan unggul); bila tidak, pakai selisih umum.
+    const W = 12;
+    const localOffset = (i: number): number => {
+      const v = new Map<number, number>();
+      for (let j = Math.max(0, i - W); j <= Math.min(n - 1, i + W); j++) {
+        for (const c of cands[j]!) if (c.kind === 'arabic') { const o = c.value - (j + 1); v.set(o, (v.get(o) ?? 0) + 1); }
+      }
+      const r = [...v.entries()].sort((a, b) => b[1] - a[1]);
+      if (r[0] && r[0][1] >= 3 && (!r[1] || r[0][1] > r[1][1])) return r[0][0];
+      return bestOffset;
+    };
     for (let i = 0; i < n; i++) {
-      const printed = i + 1 + bestOffset;
+      const printed = i + 1 + localOffset(i);
       if (printed < 1) continue;
       const hit = cands[i]!.some((c) => c.kind === 'arabic' && c.value === printed);
       labels[i] = { label: String(printed), confidence: hit ? 'terdeteksi' : 'disimpulkan' };
@@ -149,12 +164,19 @@ export function detectPageLabels(pages: string[]): { labels: PageLabel[]; covera
     if (romanOff !== undefined) {
       for (let i = 0; i < Math.min(n, firstArabic - 1); i++) {
         const v = i + 1 + romanOff;
-        if (v < 1) continue;
+        if (v < 1 || labels[i]!.label !== null) continue; // jangan timpa halaman yang sudah berlabel angka
         const hit = cands[i]!.some((c) => c.kind === 'roman' && c.value === v);
         labels[i] = { label: toRoman(v), confidence: hit ? 'terdeteksi' : 'disimpulkan' };
       }
     }
   }
+  // Label simpulan yang kembar dengan label lain (halaman sisipan tanpa nomor) dikosongkan: lebih baik "tidak diketahui" daripada salah.
+  const seen = new Set(labels.filter((l) => l.confidence === 'terdeteksi').map((l) => l.label));
+  labels.forEach((l, i) => {
+    if (l.confidence !== 'disimpulkan' || !l.label) return;
+    if (seen.has(l.label)) labels[i] = { label: null, confidence: 'tidak_diketahui' };
+    else seen.add(l.label);
+  });
   const detected = labels.filter((l) => l.confidence === 'terdeteksi').length;
   return { labels, coverage: n ? detected / n : 0 };
 }
@@ -167,7 +189,7 @@ export function extractMetadata(pages: string[]): BookMetadataProposal {
   const front = pages.slice(0, 6).join('\n');
   const lines = front.split('\n').map((l) => l.trim()).filter(Boolean);
   const meta: BookMetadataProposal = {
-    title: null, bookType: 'lainnya', level: null, grade: null, semester: null, edition: null,
+    title: null, subject: null, bookType: 'lainnya', level: null, grade: null, semester: null, edition: null,
     year: null, authors: [], publisher: null, copyrightHolder: null, isbn: [],
   };
   const lv = LEVEL_RE.exec(front);
@@ -198,7 +220,12 @@ export function extractMetadata(pages: string[]): BookMetadataProposal {
     }
   }
   const isSmk = meta.level === 'SMK/MAK';
-  const subject = /DASAR-DASAR\s*SENI RUPA|Dasar-Dasar Seni Rupa/i.test(front) ? 'Dasar-Dasar Seni Rupa' : /SENI RUPA|Seni Rupa/.test(front) ? 'Seni Rupa' : null;
+  // Mata pelajaran dari baris "Buku Panduan Guru <Mapel> untuk SMA/MA Kelas …" (berlaku untuk mapel apa pun).
+  const named = /Buku\s+(?:Panduan Guru|Siswa)\s+([^\n]{3,80}?)\s*\n?\s*untuk\s+(?:SD|SMP|SMA|SMK)/i.exec(front)?.[1]?.replace(/\s+/g, ' ').trim();
+  const subject = /DASAR-DASAR\s*SENI RUPA|Dasar-Dasar Seni Rupa/i.test(front) ? 'Dasar-Dasar Seni Rupa'
+    : named && !/^Seni Rupa$/i.test(named) ? named
+    : /SENI RUPA|Seni Rupa/.test(front) ? 'Seni Rupa' : null;
+  meta.subject = subject;
   if (subject) {
     const parts = [meta.bookType === 'buku_guru' ? 'Panduan Guru' : null, subject,
       meta.level && meta.grade ? `untuk ${meta.level} Kelas ${toRoman(meta.grade).toUpperCase()}` : null,
@@ -249,6 +276,43 @@ function tocChapters(pages: string[], fm: number): { n: number; kind: 'bab' | 'u
   return out.sort((a, b) => a.n - b.n);
 }
 
+/**
+ * Halaman pembuka unit/bab bergaya buku Kemendikbudristek: memuat blok "Penulis : … / ISBN : …"
+ * dan penanda "UNIT"/"Bab" beserta nomornya. Judul = baris sisa setelah boilerplate dan pertanyaan pemantik dibuang.
+ */
+export function openerPages(pages: string[], fm: number): { n: number; index: number; title: string; kind: 'bab' | 'unit' }[] {
+  const out: { n: number; index: number; title: string; kind: 'bab' | 'unit' }[] = [];
+  const BOILER = /KEMENTERIAN|REPUBLIK INDONESIA|^Buku (Panduan Guru|Siswa)|^untuk\s|^Penulis\s*:|^ISBN\s*:|^Bagian\b|^(Unit|UNIT|Bab|BAB)\b|^\d{1,3}$|[“”"?]/i;
+  pages.forEach((p, i) => {
+    if (i <= fm) return;
+    const lines = p.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (lines.length > 30 || !lines.some((l) => /^Penulis\s*:/i.test(l)) || !lines.some((l) => /^ISBN\s*:/i.test(l))) return;
+    let n: number | null = null; let kind: 'bab' | 'unit' | null = null;
+    lines.forEach((l, k) => {
+      if (n !== null) return;
+      const full = /^(Unit|Bab)\s+(\d{1,2}|[IVX]+)$/i.exec(l);
+      if (full) { n = numOf(full[2]!); kind = /unit/i.test(full[1]!) ? 'unit' : 'bab'; return; }
+      if (/^(UNIT|Unit|BAB|Bab)$/.test(l)) {
+        kind = /unit/i.test(l) ? 'unit' : 'bab';
+        const near = [lines[k - 1], lines[k + 1]].map((x) => (x ? /(?:^|\s)(\d{1,2})$/.exec(x)?.[1] : undefined)).find(Boolean);
+        if (near) n = Number(near);
+      }
+    });
+    if (!kind) return;
+    // Baris huruf kecil hanya diterima sebagai sambungan judul ("dan Perancangan"), bukan sisa kalimat pemantik.
+    const kept: string[] = [];
+    for (const l of lines) {
+      if (BOILER.test(l) || l.length > 60) continue;
+      if (/^[a-z]/.test(l) && !(kept.length && /^(dan|dengan|serta|di|ke|pada|untuk)\b/.test(l))) continue;
+      kept.push(l);
+    }
+    const title = kept.join(' ').replace(/\s+/g, ' ').trim();
+    out.push({ n: n ?? (out.at(-1)?.n ?? 0) + 1, index: i, title, kind });
+  });
+  // Harus berurutan naik; buang nomor ganda.
+  return out.filter((o, i, a) => i === 0 || o.n > a[i - 1]!.n);
+}
+
 const NON_CHAPTER = /^(Kata Pengantar|Prakata|Daftar|Petunjuk|Glosarium|Indeks|Profil|Biodata|Lampiran|Gambar|Tabel|Riwayat)/i;
 
 /** Membaca daftar isi: entri utama yang langsung diikuti "A. …" dianggap bab. "Panduan Umum/Khusus" dianggap bagian. */
@@ -282,7 +346,32 @@ export function tocTopEntries(pages: string[]): { title: string; printed: number
   return out.filter((e, i, a) => i === 0 || e.printed > a[i - 1]!.printed);
 }
 
-export function detectChapters(pages: string[], labels: PageLabel[]): { chapters: ChapterProposal[]; warnings: string[] } {
+type Detected = { chapters: ChapterProposal[]; warnings: string[] };
+
+/** Skor mutu: bab yang judulnya wajar dan benar-benar muncul di halaman awalnya. */
+function chapterScore(pages: string[], d: Detected): number {
+  return verifyChapters(pages, d.chapters).filter((c) => c.kind !== 'bagian' && c.verified && !/^(Bab|Unit) \d+$/.test(c.title) && c.title.length <= 80 && !looksGarbled(c.title)).length;
+}
+
+/** Judul dari teks berlapis ganda, mis. "Membuat K Membuat Konstruksi onstruksi": ada potongan kata yang merupakan awal/akhir kata lain. */
+export function looksGarbled(title: string): boolean {
+  const toks = title.split(/[^A-Za-zÀ-ÿ0-9-]+/).filter(Boolean);
+  return toks.some((t, i) => toks.some((u, j) => j !== i && u.length >= t.length + 2 && (u.endsWith(t) || u.startsWith(t)) && t.toLowerCase() !== u.toLowerCase()));
+}
+
+/**
+ * Dua cara dicoba: cara biasa (daftar isi + judul halaman) dan cara halaman pembuka (blok Penulis/ISBN).
+ * Cara halaman pembuka hanya dipakai bila hasilnya lebih baik, agar buku yang sudah benar tidak berubah.
+ */
+export function detectChapters(pages: string[], labels: PageLabel[]): Detected {
+  const normal = detectChaptersWith(pages, labels, false);
+  const viaOpener = detectChaptersWith(pages, labels, true);
+  return viaOpener && chapterScore(pages, viaOpener) > chapterScore(pages, normal) ? viaOpener : normal;
+}
+
+function detectChaptersWith(pages: string[], labels: PageLabel[], useOpeners: true): Detected | null;
+function detectChaptersWith(pages: string[], labels: PageLabel[], useOpeners: false): Detected;
+function detectChaptersWith(pages: string[], labels: PageLabel[], useOpeners: boolean): Detected | null {
   const warnings: string[] = [];
   const fm = frontMatterEnd(pages);
   const toc = tocChapters(pages, fm);
@@ -319,11 +408,18 @@ export function detectChapters(pages: string[], labels: PageLabel[]): { chapters
   const overlap = (a: string, b: string) => { const A = words(a), B = words(b); let n = 0; A.forEach((w) => { if (B.has(w)) n++; }); return A.size && B.size ? n / Math.min(A.size, B.size) : 0; };
 
   // Jalur 2: judul di halaman pembuka bab, harus berurutan.
-  const headPath = new Map<number, { index: number; title: string; kind: 'bab' | 'unit'; running?: boolean }>();
-  let prev = fm;
-  for (const n of [...cands.keys()].sort((a, b) => a - b)) {
-    const c = (cands.get(n) ?? []).find((x) => x.index > prev + 3);
-    if (c) { headPath.set(n, c); prev = c.index; }
+  const headPath = new Map<number, { index: number; title: string; kind: 'bab' | 'unit'; running?: boolean; opener?: boolean }>();
+  const openers = useOpeners ? openerPages(pages, fm) : [];
+  if (useOpeners && openers.length < 2) return null;
+  if (openers.length >= 2) {
+    // Halaman pembuka resmi (blok Penulis/ISBN) adalah bukti terkuat awal unit.
+    for (const o of openers) headPath.set(o.n, { index: o.index, title: o.title, kind: o.kind, opener: true });
+  } else {
+    let prev = fm;
+    for (const n of [...cands.keys()].sort((a, b) => a - b)) {
+      const c = (cands.get(n) ?? []).find((x) => x.index > prev + 3);
+      if (c) { headPath.set(n, c); prev = c.index; }
+    }
   }
   // Jalur 1 dinomori ulang berurutan.
   const tocPath = new Map<number, { index: number; title: string; kind: 'bab' | 'unit'; running?: boolean }>();
@@ -339,11 +435,12 @@ export function detectChapters(pages: string[], labels: PageLabel[]): { chapters
   }
   if (tocPath.size >= 2 || headPath.size >= 2) {
     const res: ChapterProposal[] = [];
-    const ords = [...new Set([...tocPath.keys(), ...headPath.keys()])].sort((a, b) => a - b);
+    const ords = (useOpeners ? [...headPath.keys()] : [...new Set([...tocPath.keys(), ...headPath.keys()])]).sort((a, b) => a - b);
     for (const n of ords) {
       const t = tocPath.get(n), h = headPath.get(n);
       let pick: { index: number; title: string; kind: 'bab' | 'unit'; running?: boolean }; let source: ChapterProposal['source'];
-      if (t && h && Math.abs(t.index - h.index) <= 2) { pick = t; source = 'gabungan'; }
+      if (h?.opener) { pick = { ...h, title: h.title.length >= 3 ? h.title : t?.title ?? '' }; source = t && Math.abs(t.index - h.index) <= 2 ? 'gabungan' : 'judul_halaman'; }
+      else if (t && h && Math.abs(t.index - h.index) <= 2) { pick = t; source = 'gabungan'; }
       else if (t && h) { const useHead = !h.running && overlap(t.title, h.title) >= 0.5; pick = useHead ? { ...h, title: t.title } : t; source = useHead ? 'gabungan' : 'daftar_isi'; }
       else if (t) { pick = t; source = 'daftar_isi'; }
       else { pick = h!; source = 'judul_halaman'; }

@@ -37,7 +37,7 @@ Label: **Teruji** = dibangun dan lulus tes otomatis/manual yang dicatat · **Bel
 
 ## Fase 2a · Perpustakaan — gerbang LULUS
 
-Gerbang Master Prompt Fase 2 (perpustakaan): *satu buku nyata diproses dan dicari*. `tests/db/real-book.test.ts` dengan buku siswa *Dasar-Dasar Seni Rupa X Semester 2*: **5/5 lulus** (metadata, 3 bab pada hlm 1/53/109, pencarian "arsiran hatching" → hlm 17–18, siswa sekolah lain tidak mendapat hasil). Tes ini butuh berkas buku dan hanya dijalankan lokal (`REAL_BOOK=…`), bukan di CI.
+Gerbang Master Prompt Fase 2 (perpustakaan): *satu buku nyata diproses dan dicari*. `tests/db/real-book.test.ts` dengan buku siswa *Dasar-Dasar Seni Rupa X Semester 2*: **6/6 lulus** (metadata, 3 bab pada hlm 1/53/109, pencarian "arsiran hatching" → hlm 17–18, "proyeksi ortogonal" → Bab 2, akses publik/privat). Tes ini butuh berkas buku dan hanya dijalankan lokal (`REAL_BOOK=…`), bukan di CI.
 
 | Fitur | Status | Bukti |
 | --- | --- | --- |
@@ -45,9 +45,9 @@ Gerbang Master Prompt Fase 2 (perpustakaan): *satu buku nyata diproses dan dicar
 | Buku privat (non-Kementerian): isi hanya untuk siswa/guru/admin sekolah ber-akses, buku berstatus siap | Teruji | `library.test.ts` |
 | Metadata & daftar bab publik; buku tertutup/draf tidak terlihat publik | Teruji | `library.test.ts` |
 | Status "siap" wajib ditinjau manusia (constraint database) | Teruji | `library.test.ts` |
-| Pemroses buku: halaman, nomor halaman cetak (arab/romawi), metadata, bab, potongan | Teruji | `tests/unit/ingest.test.ts` 16/16 + 14 buku nyata (lihat `docs/perpustakaan.md`) |
+| Pemroses buku: halaman, nomor halaman cetak (arab/romawi, selisih bergeser), metadata & mapel, bab/unit (termasuk halaman pembuka unit), potongan | Teruji | `tests/unit/ingest.test.ts` 22/22 + 17 buku nyata (lihat `docs/perpustakaan.md`) |
 | Pencarian isi buku (full-text Indonesia, cuplikan bertanda, halaman cetak) | Teruji | `library.test.ts` + uji buku nyata |
-| Impor lewat skrip (`npm run import:books`) | Teruji | 14 buku diimpor ke PostgreSQL lokal tanpa galat |
+| Impor lewat skrip (`npm run import:books`) | Teruji | 17 buku (termasuk Prakarya Kerajinan X–XII) diimpor ke PostgreSQL lokal tanpa galat; pencarian anonim diuji |
 | Ekstraksi PDF di browser (pdf.js) | Teruji (algoritma) | Dibandingkan dengan pdftotext pada 4 PDF: struktur bab sama di 3, satu bab ganda di 1 (tertangkap saat tinjauan) |
 | Isi buku publik per buku (anon membaca & mencari; draf/buku privat tetap tertutup) | Teruji | `library.test.ts` (24 tes) |
 | Pencarian isi menyertakan bab; pencarian judul bab | Teruji | `library.test.ts` + uji pada 14 buku (mis. "makrame" → Bab 4 SD V; "perspektif dua titik" → Bab Gambar Teknik) |

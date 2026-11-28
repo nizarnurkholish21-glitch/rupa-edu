@@ -51,10 +51,13 @@ describe.skipIf(!REAL)('Buku nyata: Dasar-Dasar Seni Rupa Kelas X Semester 2', (
     expect(['17', '18']).toContain(rows[0]?.printed_label);
   });
   it('siswa sekolah A menemukan proyeksi ortogonal di Bab 2 (hlm 53–108)', async () => {
-    const rows = await as(pool, SISWA_A, async (c) => (await c.query(`select printed_label from public.search_book_chunks('proyeksi ortogonal')`)).rows);
-    const pages = rows.map((r) => Number(r.printed_label));
-    expect(pages.length).toBeGreaterThan(0);
-    expect(pages.every((p) => p >= 53 && p <= 108)).toBe(true);
+    const rows = await as(pool, SISWA_A, async (c) => (await c.query(`select printed_label, chapter_title from public.search_book_chunks('proyeksi ortogonal')`)).rows);
+    expect(rows.length).toBeGreaterThan(0);
+    // Halaman sisipan tanpa nomor cetak berlabel null (tidak ditebak), tetapi tetap harus masuk Bab 2.
+    const known = rows.filter((r) => r.printed_label !== null).map((r) => Number(r.printed_label));
+    expect(known.length).toBeGreaterThan(0);
+    expect(known.every((p) => p >= 53 && p <= 108)).toBe(true);
+    expect(rows.every((r) => /GAMBAR TEKNIK/i.test(r.chapter_title))).toBe(true);
   });
   it('buku Kementerian publik: pengunjung tanpa login menemukan isinya, lengkap dengan bab', async () => {
     const rows = await as(pool, null, async (c) => (await c.query(`select printed_label, chapter_title from public.search_book_chunks('arsiran hatching')`)).rows);

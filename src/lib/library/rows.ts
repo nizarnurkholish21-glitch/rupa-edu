@@ -22,7 +22,7 @@ export function isGovernmentBook(holder: string | null): boolean {
 export function bookRow(r: IngestResult, opts: { slug?: string; fileName?: string; sha256?: string }): BookRow {
   const m = r.metadata;
   const gov = isGovernmentBook(m.copyrightHolder);
-  const subject = /Dasar-Dasar Seni Rupa/.test(m.title ?? '') ? 'Dasar-Dasar Seni Rupa' : 'Seni Rupa';
+  const subject = m.subject ?? 'Belum diisi';
   return {
     slug: opts.slug ?? slugify(m.title ?? opts.fileName ?? 'buku'),
     title: m.title ?? opts.fileName ?? 'Tanpa judul',

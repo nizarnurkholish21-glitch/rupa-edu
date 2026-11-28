@@ -1,7 +1,7 @@
 // Tes pemroses buku dengan teks sintetis (isi buku sungguhan berhak cipta tidak disimpan di repositori).
 import { describe, expect, it } from 'vitest';
 import {
-  chunkPages, cleanText, detectChapters, detectPageLabels, extractMetadata, ingestText, splitPages, tocTopEntries, verifyChapters,
+  chunkPages, cleanText, detectChapters, detectPageLabels, extractMetadata, ingestText, looksGarbled, openerPages, splitPages, tocTopEntries, verifyChapters,
 } from '../../src/lib/library/ingest';
 import { bookRow, chapterRows, slugify } from '../../src/lib/library/rows';
 
@@ -127,5 +127,58 @@ describe('baris database', () => {
   });
   it('slug aman untuk URL', () => {
     expect(slugify('Panduan Guru Seni Rupa — SMP/MTs Kelas VII!')).toBe('panduan-guru-seni-rupa-smp-mts-kelas-vii');
+  });
+});
+
+/**
+ * Buku sintetis bergaya Prakarya: nomor cetak menempel di header berjalan, ada satu halaman sisipan tanpa nomor
+ * (selisih nomor bergeser di tengah buku), dan halaman pembuka unit memuat blok Penulis/ISBN tanpa daftar isi bertitik.
+ */
+function prakaryaBook(): string {
+  const pages: string[] = [];
+  pages.push('SMA/MA KELAS XI\nBuku Panduan Guru\nKEMENTERIAN PENDIDIKAN\n2022');
+  pages.push('Hak Cipta pada Kementerian Uji Republik Indonesia\nBuku Panduan Guru Prakarya dan Kewirausahaan: Kerajinan\nuntuk SMA/MA Kelas XI\nPenulis\nDewi Uji');
+  const opener = (n: number, title: string[], q: string) => [...title, `“${q}?” ${n}`, 'UNIT', 'KEMENTERIAN PENDIDIKAN, KEBUDAYAAN', 'REPUBLIK INDONESIA, 2022',
+    'Buku Panduan Guru Prakarya dan Kewirausahaan: Kerajinan', 'Untuk SMA/MA Kelas XI', 'Penulis : Dewi Uji, dkk.', 'ISBN : 978-602-000-000-0 (jil.2)'].join('\n');
+  let printed = 1;
+  for (let i = 0; i < 40; i++) {
+    if (i === 20) { pages.push('Halaman foto sisipan tanpa nomor.'); continue; }
+    const body = printed === 5 ? opener(1, ['Analisa Ragam', 'Kerajinan Nusantara'], 'Mengapa kerajinan berbeda')
+      : printed === 25 ? opener(2, ['Pengolahan dan', 'Perancangan Produk'], 'Bagaimana memilih alat')
+      : `${printed % 2 ? `Panduan Umum ${printed}` : `${printed} Buku Panduan Guru Prakarya Kerajinan untuk SMA/MA Kelas XI`}\nIsi halaman ${printed} tentang anyaman dan kerajinan lokal.`;
+    pages.push(body);
+    printed++;
+  }
+  return pages.join('\f');
+}
+
+describe('buku bergaya Prakarya (halaman pembuka unit, nomor bergeser)', () => {
+  const r = ingestText(prakaryaBook());
+  it('judul buku dibaca untuk mapel selain Seni Rupa', () => {
+    expect(r.metadata.title).toBe('Panduan Guru Prakarya dan Kewirausahaan: Kerajinan untuk SMA/MA Kelas XI');
+    expect(bookRow(r, {}).subject).toBe('Prakarya dan Kewirausahaan: Kerajinan');
+  });
+  it('nomor halaman tetap benar setelah halaman sisipan; halaman sisipan tidak diberi nomor palsu', () => {
+    const idx = (label: string) => r.labels.findIndex((l) => l.label === label);
+    expect(r.pages[idx('10')]).toContain('Isi halaman 10');
+    expect(r.pages[idx('30')]).toContain('Isi halaman 30');
+    expect(r.labels[22]).toEqual({ label: null, confidence: 'tidak_diketahui' });
+    expect(new Set(r.labels.filter((l) => l.label).map((l) => l.label)).size).toBe(r.labels.filter((l) => l.label).length);
+  });
+  it('unit dikenali dari halaman pembuka, dengan judul tanpa pertanyaan pemantik', () => {
+    const units = r.chapters.filter((c) => c.kind !== 'bagian');
+    expect(units.map((c) => [c.ordinal, c.title, r.labels[c.startIndex]?.label])).toEqual([
+      [1, 'Analisa Ragam Kerajinan Nusantara', '5'],
+      [2, 'Pengolahan dan Perancangan Produk', '25'],
+    ]);
+    expect(units.every((c) => c.verified)).toBe(true);
+  });
+  it('halaman pembuka tanpa nomor eksplisit diberi nomor berurutan', () => {
+    const pages = ['x', 'UNIT\nJudul Satu\nPenulis : A\nISBN : 1', 'isi', 'Unit 2\nJudul Dua\nPenulis : A\nISBN : 1'];
+    expect(openerPages(pages, 0).map((o) => [o.n, o.title])).toEqual([[1, 'Judul Satu'], [2, 'Judul Dua']]);
+  });
+  it('mengenali judul dari teks berlapis ganda', () => {
+    expect(looksGarbled('Membuat K Membuat Konstruksi onstruksi Sederhana')).toBe(true);
+    expect(looksGarbled('Simulasi Pasar, Magang dan Lokakarya')).toBe(false);
   });
 });

@@ -22,16 +22,23 @@
 
 Untuk developer: `npm run import:books -- <berkas…>` dengan `DATABASE_URL` mengimpor lewat koneksi database langsung; `npm run ingest:report -- <masukan> <keluaran>` membuat laporan mutu tanpa menyentuh database. Keluaran berisi teks buku: jangan di-commit.
 
-## Mutu pemrosesan otomatis (14 buku Seni Rupa, 27 Nov 2026)
+## Mutu pemrosesan otomatis (17 buku, 28 Nov 2026)
+
+Koleksi: 14 buku Seni Rupa/Dasar-Dasar Seni Rupa (SD–SMK) + 3 Buku Panduan Guru *Prakarya dan Kewirausahaan: Kerajinan* SMA/MA Kelas X–XII.
 
 | Ukuran | Hasil |
 | --- | --- |
-| Buku diproses tanpa galat | 14/14 (3.218 halaman, 5.004 potongan pencarian) |
-| Nomor halaman cetak terdeteksi | 52–98% per buku; sisanya disimpulkan dan ditandai "perkiraan" |
-| Bab yang judulnya cocok dengan halaman awalnya | 62/69 (90%) |
-| Buku dengan struktur bab lengkap tanpa koreksi | 12/14 |
-| Perlu koreksi manual | Panduan Guru SD Kelas IV (sebagian judul bab), Panduan Guru SMA Kelas XII (daftar isi dua kolom, bab diisi manual) |
-| Uji ujung ke ujung (buku siswa Dasar-Dasar Seni Rupa X Semester 2) | Metadata, 3 bab (hlm 1, 53, 109), dan pencarian "arsiran hatching" → hlm 17–18 benar; siswa sekolah lain tidak mendapat hasil |
+| Buku diproses tanpa galat | 17/17 (3.974 halaman, 6.153 potongan pencarian) |
+| Nomor halaman cetak terdeteksi | 93–98% per buku (sebelumnya 52–98%); sisanya disimpulkan dan ditandai "perkiraan" |
+| Bab/unit yang judulnya cocok dengan halaman awalnya | 75/82 (91%) |
+| Buku Prakarya X–XII | 13/13 unit benar, halaman awal sama dengan daftar isi |
+| Perlu koreksi manual | Panduan Guru SD Kelas IV (sebagian judul bab), Panduan Guru SMA Kelas XII Seni Rupa (daftar isi dua kolom) |
+| Uji ujung ke ujung (buku siswa Dasar-Dasar Seni Rupa X Semester 2) | Metadata, 3 bab (hlm 1, 53, 109), "arsiran hatching" → hlm 17–18, "proyeksi ortogonal" → semua di Bab 2; siswa sekolah lain tidak mendapat hasil |
+
+Cara membaca yang dipakai:
+- **Nomor halaman**: selisih antara urutan halaman berkas dan nomor cetak dihitung per bagian buku (±12 halaman), karena PDF sering kehilangan atau menyisipkan halaman tanpa nomor. Halaman sisipan yang nomornya akan kembar dengan halaman lain dibiarkan **tanpa nomor** (tampil "Halaman berkas N"), bukan ditebak.
+- **Bab/unit**: (1) daftar isi, (2) judul di awal halaman, dan (3) halaman pembuka unit bergaya Kemendikbudristek (memuat "Penulis : …" dan "ISBN : …"). Cara (3) hanya dipakai bila menghasilkan lebih banyak bab yang judulnya bersih dan terbukti muncul di halaman awalnya, sehingga buku yang sudah benar tidak berubah.
+- **Mata pelajaran & judul** dibaca dari baris "Buku Panduan Guru/Siswa <mapel> untuk <jenjang> Kelas …", jadi berlaku untuk mapel selain Seni Rupa.
 
 Berkas `.txt` tidak memiliki penanda halaman resmi; pemisahnya disimpulkan dari baris kosong. Hasilnya cocok untuk buku-buku ini, tetapi bila memiliki PDF aslinya, unggah PDF agar nomor halaman lebih akurat.
 
