@@ -52,8 +52,8 @@ Gerbang Master Prompt Fase 2 (perpustakaan): *satu buku nyata diproses dan dicar
 | Isi buku publik per buku (anon membaca & mencari; draf/buku privat tetap tertutup) | Teruji | `library.test.ts` (24 tes) |
 | Pencarian isi menyertakan bab; pencarian judul bab | Teruji | `library.test.ts` + uji pada 14 buku (mis. "makrame" → Bab 4 SD V; "perspektif dua titik" → Bab Gambar Teknik) |
 | Pengelompokan hasil Buku → Bab → halaman | Teruji | `tests/unit/group.test.ts` |
-| Halaman Perpustakaan (cari semua buku), Jelajah bab, detail buku, pembaca per halaman + sumber/SIBI | Belum diverifikasi | Build lulus; butuh Supabase berisi buku untuk dicoba |
-| Kelola buku: daftar, tinjau bab/metadata/akses, terbitkan, unggah | Belum diverifikasi | Build lulus; butuh Supabase + akun super admin |
+| Halaman Perpustakaan (cari semua buku), Jelajah bab, detail buku, pembaca per halaman + sumber/SIBI | Teruji (manual, produksi) | 28 Nov 2026 di rupa-edu.vercel.app: pengunjung tanpa login mencari "arsiran" → Bab 1 buku Dasar-Dasar Seni Rupa X Sem 2 |
+| Kelola buku: daftar, tinjau bab/metadata/akses, terbitkan, unggah | Teruji (manual, produksi) | 28 Nov 2026: super admin mengunggah PDF (200 hlm, 97% nomor halaman), mengoreksi 1 bab palsu ("Menggambar Proyeksi", dari ekstraksi PDF), menerbitkan. Akses per sekolah belum dicoba (belum ada sekolah) |
 | Hasil buku di pencarian umum (isi untuk yang berhak, kartu metadata untuk umum) | Belum diverifikasi | Butuh Supabase |
 | OCR PDF pindaian | Direncanakan | Unggahan tanpa teks ditolak dengan pesan jelas |
 | Gambar/halaman asli buku | Direncanakan | Menunggu keputusan penyimpanan & lisensi |
