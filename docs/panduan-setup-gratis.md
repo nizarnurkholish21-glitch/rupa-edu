@@ -30,15 +30,14 @@ Hasil: login aktif, peran (siswa/guru/wali/admin) bekerja, aturan privasi ditega
    - Plan: **Free**.
 3. Tunggu sampai proyek siap (±2 menit).
 
-### B2. Buat tabel dan aturan akses
+### B2. Buat tabel dan aturan akses (sekali salin-tempel)
 
-1. Di Supabase, buka **SQL Editor** → **New query**.
-2. Di GitHub, buka folder `supabase/migrations/`. Jalankan **setiap file secara berurutan** (nama file diawali tanggal):
-   - `20261127000001_foundation.sql` (akun, peran, sekolah, kelas)
-   - `20261127000002_library.sql` (perpustakaan buku)
+1. Di GitHub, buka berkas **`supabase/setup-lengkap.sql`**, lalu klik tombol **Copy raw file** (ikon dua kotak di kanan atas isi berkas).
+2. Di Supabase, buka **SQL Editor** (ikon `>_` di menu kiri) → **New query**.
+3. Klik area kosong, tekan **Ctrl+V** (Mac: Cmd+V), lalu klik **Run** (kanan bawah).
+4. Harus muncul **"Success. No rows returned"**. Jika muncul peringatan tentang *destructive operation*, klik **Run this query**.
 
-   Untuk tiap file: klik **Copy raw file**, tempel ke SQL Editor, klik **Run**. Harus muncul "Success. No rows returned".
-3. Ulangi untuk file `supabase/seed.sql` (12 artikel demo).
+Berkas ini berisi semua tabel, aturan privasi, perpustakaan, dan 12 artikel demo. Jalankan **hanya sekali** di proyek yang masih kosong.
 
 ### B3. Matikan pendaftaran publik (penting)
 

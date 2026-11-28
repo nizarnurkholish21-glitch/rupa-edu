@@ -13,6 +13,7 @@
     "test:db": "vitest run tests/db",
     "test:all": "vitest run",
     "seed:sql": "node scripts/build-seed-sql.mjs",
+    "setup:sql": "node scripts/build-setup-sql.mjs",
     "seed:demo-users": "node scripts/seed-demo-users.mjs",
     "check:secrets": "node scripts/check-client-secrets.mjs",
     "postinstall": "node -e \"require('fs').mkdirSync('public/pdfjs',{recursive:true});require('fs').copyFileSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','public/pdfjs/pdf.worker.min.mjs')\"",

@@ -39,6 +39,8 @@ jobs:
         run: npm run test:db
       - name: Seed SQL sinkron dengan konten demo
         run: npm run seed:sql && git diff --exit-code supabase/seed.sql
+      - name: Berkas penyiapan Supabase (setup-lengkap.sql) sinkron
+        run: npm run setup:sql && git diff --exit-code supabase/setup-lengkap.sql
       - name: Build produksi
         run: npm run build
       - name: Tidak ada rahasia di bundle klien
